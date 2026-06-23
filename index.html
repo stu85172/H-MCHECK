@@ -3,30 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>公司行動打卡系統 (安全管控版)</title>
+    <title>華一商行行動打卡系統&公告</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; text-align: center; }
         .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        .logo-img { max-width: 120px; height: auto; margin: 0 auto 15px auto; display: block; border-radius: 8px; }
         h2 { color: #333; margin-bottom: 5px; }
         label { display: block; text-align: left; margin-top: 15px; font-weight: bold; color: #555; }
         select, input[type="password"] { width: 100%; padding: 12px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; background-color: #fff; }
-        
         button { width: 100%; padding: 15px; border-radius: 5px; border: none; color: white; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
-        
         .btn-on { background-color: #28a745; }
         .btn-on:hover { background-color: #218838; }
         .btn-off { background-color: #dc3545; }
         .btn-off:hover { background-color: #c82333; }
-        
         .time-hint { background-color: #eee; padding: 10px; border-radius: 5px; color: #666; font-size: 14px; margin-top: 10px; }
         #status { margin-top: 20px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 50px; }
+
+        /* 📢 公告欄專用樣式 */
+        .announcement-panel { max-width: 400px; margin: 25px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
+        .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; }
+        .ann-item { padding: 10px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .ann-item:hover { background-color: #fafafa; }
+        .ann-date { font-size: 13px; color: #999; font-weight: bold; min-width: 85px; }
+        .ann-title { font-size: 15px; color: #333; flex-grow: 1; margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ann-content-view { display: none; text-align: left; }
+        .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
+        .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
+        .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; white-space: pre-wrap; margin-bottom: 25px; }
+        .ann-nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .ann-btn { padding: 10px; border-radius: 5px; font-size: 13px; font-weight: bold; background-color: #6c757d; color: white; border: none; cursor: pointer; text-align: center; }
+        .ann-btn:hover { background-color: #5a6268; }
+        .ann-btn.back-list { background-color: #007bff; }
+        .ann-btn.back-list:hover { background-color: #0069d9; }
+        .ann-btn:disabled { background-color: #ced4da; color: #6c757d; cursor: not-allowed; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>H&M打卡系統</h2>
-    <p style="font-size: 13px; color: #888; margin-top: 0;">華一商行GPS打卡系統</p>
+<div id="punchCard" class="card">
+    <img src="YOUR_IMAGE_URL_HERE" alt="Company Logo" class="logo-img" onerror="this.style.display='none'">
+    <h2>華一商行 行動打卡系統&公告</h2>
+    <p style="font-size: 13px; color: #888; margin-top: 0;">華一商行專用系統</p>
     
     <label for="empName">👤 選擇您的姓名：</label>
     <select id="empName">
@@ -41,12 +58,13 @@
     <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼">
     
     <div id="buttonArea"></div>
-    
     <div id="status"></div>
+</div>
+
 <div class="announcement-panel">
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
-        <div id="annListContainer"></div>
+        <div id="annListContainer">🔄 正在從後台同步最新公告...</div>
     </div>
 
     <div id="annContentView" class="ann-content-view">
@@ -63,44 +81,38 @@
 </div>
 
 <script>
-// ==================== [ 📢 公告資料設定區 ] ====================
-// 💡 您可以在這裡自由新增、修改公告，最新發布的請放在最上面 (陣列開頭)
-const ANNOUNCEMENTS = [
-  {
-    date: "2026/06/23",
-    title: "測試測試測試測試測試",
-    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
-  },
-  {
-    date: "2026/06/15",
-    title: "測試測試測試測試測試",
-    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
-  },
-  {
-    date: "測試測試測試測試測試",
-    title: "六月份全員消防安全演練通知",
-    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
-  }
-];
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
+const COMPANY_LAT = 23.484433301249886; 
+const COMPANY_LNG = 120.4440414095138;  
+const MAX_DISTANCE = 200;               
 
-let currentAnnIndex = 0; // 記錄目前觀看的公告索引
+let ANNOUNCEMENTS = []; 
+let currentAnnIndex = 0;
 
-// 初始化網頁
 window.onload = function() {
     renderPunchButton();
-    renderAnnList(); // 渲染公告列表
+    fetchAnnouncements(); 
 };
 
-// 渲染公告列表
+function fetchAnnouncements() {
+    fetch(GAS_URL)
+    .then(response => response.json())
+    .then(data => {
+        ANNOUNCEMENTS = data;
+        renderAnnList();
+    })
+    .catch(err => {
+        document.getElementById("annListContainer").innerHTML = "<p style='color:red; font-size:14px;'>❌ 無法載入公告，請重新整理網頁。</p>";
+    });
+}
+
 function renderAnnList() {
     const container = document.getElementById("annListContainer");
     container.innerHTML = "";
-    
     if (ANNOUNCEMENTS.length === 0) {
         container.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
         return;
     }
-
     ANNOUNCEMENTS.forEach((ann, index) => {
         const item = document.createElement("div");
         item.className = "ann-item";
@@ -114,80 +126,50 @@ function renderAnnList() {
     });
 }
 
-// 顯示特定公告內文
 function showAnnContent(index) {
     currentAnnIndex = index;
     const ann = ANNOUNCEMENTS[index];
-
-    // 隱藏打卡框與公告列表
     document.getElementById("punchCard").style.display = "none";
     document.getElementById("annListView").style.display = "none";
     
-    // 填入公告內文
     document.getElementById("annContentTitle").innerText = ann.title;
     document.getElementById("annContentDate").innerText = "發布日期：" + ann.date;
     document.getElementById("annContentBody").innerText = ann.content;
     
-    // 控制上一則/下一則按鈕是否可點擊
-    document.getElementById("btnPrevAnn").disabled = (index === 0); // 第一則是最新，沒有上一則
-    document.getElementById("btnNextAnn").disabled = (index === ANNOUNCEMENTS.length - 1); // 最後一則沒有下一則
-    
-    // 顯示內文區塊
+    document.getElementById("btnPrevAnn").disabled = (index === 0);
+    document.getElementById("btnNextAnn").disabled = (index === ANNOUNCEMENTS.length - 1);
     document.getElementById("annContentView").style.display = "block";
-    window.scrollTo(0, 0); // 畫面自動滾動回最上方
+    window.scrollTo(0, 0);
 }
 
-// 回到公告列表
 function showAnnList() {
-    // 隱藏內文區塊
     document.getElementById("annContentView").style.display = "none";
-    
-    // 顯示打卡框與列表
     document.getElementById("punchCard").style.display = "block";
     document.getElementById("annListView").style.display = "block";
 }
 
-// 切換上一則或下一則
 function changeAnn(direction) {
     const targetIndex = currentAnnIndex + direction;
     if (targetIndex >= 0 && targetIndex < ANNOUNCEMENTS.length) {
         showAnnContent(targetIndex);
     }
 }
-// ==================== [ 系統參數設定 ] ====================
-const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
-const COMPANY_LAT = 23.484433301249886; // 公司緯度
-const COMPANY_LNG = 120.4440414095138;  // 公司經度
-const MAX_DISTANCE = 200;               // 允許打卡的半徑範圍 (單位：公尺)
-// =========================================================
-
-// 頁面載入時，自動判斷時間並顯示對應按鈕
-window.onload = function() {
-    renderPunchButton();
-};
 
 function renderPunchButton() {
     const buttonArea = document.getElementById("buttonArea");
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const totalMinutes = hours * 60 + minutes;
+    const totalMinutes = now.getHours() * 60 + now.getMinutes();
 
-    // 中午 12:00 前 (12 * 60 = 720 分鐘)
     if (totalMinutes < 720) {
         buttonArea.innerHTML = `<button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>`;
-    } 
-    // 下午 13:30 後 (同時顯示上班與下班)
-    else if (totalMinutes >= 810) {
+    } else if (totalMinutes >= 810) {
         buttonArea.innerHTML = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                 <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班</button>
                 <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班</button>
             </div>
         `;
-    }
-    // 中午休息時間 (12:00 ~ 13:30)
-    else {
+    } else {
         buttonArea.innerHTML = `<div class="time-hint">⏸️ 目前為中午休息時間 (12:00~13:30)，暫不開放上下班打卡。</div>`;
     }
 }
@@ -196,27 +178,14 @@ function getLocation(type) {
     const name = document.getElementById("empName").value;
     const password = document.getElementById("empPassword").value.trim();
     const statusDiv = document.getElementById("status");
-    
-    if (!name) {
-        alert("請先選擇您的姓名！");
-        return;
-    }
-    if (password.length !== 4) {
-        alert("請輸入正確的 4 位數密碼！");
-        return;
-    }
-    
+    if (!name) { alert("請先選擇您的姓名！"); return; }
+    if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
     statusDiv.innerHTML = "🔄 正在驗證位置與身分...";
     statusDiv.style.color = "#666";
-
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                verifyAndSend(name, password, type, position.coords);
-            }, 
-            (error) => {
-                handleLocationError(error);
-            },
+            (position) => { verifyAndSend(name, password, type, position.coords); }, 
+            (error) => { handleLocationError(error); },
             { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
     } else {
@@ -227,57 +196,34 @@ function getLocation(type) {
 
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3; 
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-
-    return R * c; 
+    const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180, Δλ = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 }
 
 function verifyAndSend(name, password, type, coords) {
     const statusDiv = document.getElementById("status");
     const distance = getDistance(coords.latitude, coords.longitude, COMPANY_LAT, COMPANY_LNG);
-    
-    // GPS 圍籬攔截
     if (distance > MAX_DISTANCE) {
         statusDiv.innerHTML = `❌ 打卡失敗！<br>您目前距離公司約 <b>${Math.round(distance)}</b> 公尺。<br>已超出規定的 ${MAX_DISTANCE} 公尺範圍。`;
         statusDiv.style.color = "red";
         return;
     }
-
-    const payload = {
-        name: name,
-        password: password,
-        type: type,
-        latitude: coords.latitude,
-        longitude: coords.longitude,
-        accuracy: coords.accuracy
-    };
-
-    // 改用標準 POST 傳輸，以便接收 GAS 回傳的密碼/重複打卡錯誤訊息
-    fetch(GAS_URL, {
-        method: "POST",
-        body: JSON.stringify(payload)
-    })
+    const payload = { name: name, password: password, type: type, latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy };
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
     .then(response => response.json())
     .then(res => {
         if (res.status === "success") {
             statusDiv.innerHTML = `✅ 【${name}】${type}打卡成功！<br>距離公司：${Math.round(distance)} 公尺`;
             statusDiv.style.color = "green";
-            document.getElementById("empPassword").value = ""; // 清空密碼欄
+            document.getElementById("empPassword").value = ""; 
         } else {
-            statusDiv.innerHTML = res.message; // 顯示後台傳回的「密碼錯誤」或「重複打卡」警告
+            statusDiv.innerHTML = res.message; 
             statusDiv.style.color = "red";
         }
     })
     .catch((error) => {
-        // 注意：因為 GAS 的 CORS 特性，有時成功寫入也會進到 catch，此處做相容處理
         statusDiv.innerHTML = "✅ 打卡指令已送出，請至試算表確認紀錄。";
         statusDiv.style.color = "green";
     });
@@ -287,21 +233,12 @@ function handleLocationError(error) {
     const statusDiv = document.getElementById("status");
     statusDiv.style.color = "red";
     switch(error.code) {
-        case error.PERMISSION_DENIED:
-            statusDiv.innerHTML = "❌ 請開啟手機的「瀏覽器定位權限」再試一次。";
-            break;
-        case error.POSITION_UNAVAILABLE:
-            statusDiv.innerHTML = "❌ 無法取得位置，請確認手機已開啟 GPS。";
-            break;
-        case error.TIMEOUT:
-            statusDiv.innerHTML = "❌ 定位逾時，請重試。";
-            break;
-        default:
-            statusDiv.innerHTML = "❌ 發生未知定位錯誤。";
-            break;
+        case error.PERMISSION_DENIED: statusDiv.innerHTML = "❌ 請開啟手機的「瀏覽器定位權限」再試一次。"; break;
+        case error.POSITION_UNAVAILABLE: statusDiv.innerHTML = "❌ 無法取得位置，請確認手機已開啟 GPS。"; break;
+        case error.TIMEOUT: statusDiv.innerHTML = "❌ 定位逾時，請重試。"; break;
+        default: statusDiv.innerHTML = "❌ 發生未知定位錯誤。"; break;
     }
 }
 </script>
-
 </body>
 </html>
