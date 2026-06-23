@@ -69,10 +69,15 @@ function renderPunchButton() {
     if (totalMinutes < 720) {
         buttonArea.innerHTML = `<button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>`;
     } 
-    // 下午 13:30 後 (13 * 60 + 30 = 810 分鐘)
+    // 下午 13:30 後 (同時顯示上班與下班)
     else if (totalMinutes >= 810) {
-        buttonArea.innerHTML = `<button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班打卡</button>`;
-    } 
+        buttonArea.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班</button>
+                <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班</button>
+            </div>
+        `;
+    }
     // 中午休息時間 (12:00 ~ 13:30)
     else {
         buttonArea.innerHTML = `<div class="time-hint">⏸️ 目前為中午休息時間 (12:00~13:30)，暫不開放上下班打卡。</div>`;
