@@ -8,7 +8,7 @@
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; text-align: center; }
         .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .logo-img { max-width: 120px; height: auto; margin: 0 auto 15px auto; display: block; border-radius: 8px; }
-        h2 { color: #333; margin-bottom: 5px; }
+        h2 { color: #333; margin-bottom: 5px; font-size: 22px; }
         label { display: block; text-align: left; margin-top: 15px; font-weight: bold; color: #555; }
         select, input[type="password"] { width: 100%; padding: 12px; margin: 5px 0 15px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; font-size: 16px; background-color: #fff; }
         button { width: 100%; padding: 15px; border-radius: 5px; border: none; color: white; font-size: 18px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
@@ -22,10 +22,11 @@
         /* 📢 公告欄專用樣式 */
         .announcement-panel { max-width: 400px; margin: 25px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
         .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; }
-        .ann-item { padding: 10px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
+        .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
-        .ann-date { font-size: 13px; color: #999; font-weight: bold; min-width: 85px; }
-        .ann-title { font-size: 15px; color: #333; flex-grow: 1; margin-left: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 85px; flex-shrink: 0; }
+        .ann-title { font-size: 14px; color: #333; flex-grow: 1; margin-left: 8px; font-weight: 500; max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         .ann-content-view { display: none; text-align: left; }
         .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
         .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
@@ -106,6 +107,22 @@ function fetchAnnouncements() {
     });
 }
 
+function formatDateString(dateStr) {
+    if (!dateStr) return "";
+    if (dateStr.includes("GMT") || dateStr.includes("T") || dateStr.includes("-") || dateStr.includes("/")) {
+        try {
+            var d = new Date(dateStr);
+            if (!isNaN(d.getTime())) {
+                var yyyy = d.getFullYear();
+                var mm = String(d.getMonth() + 1).padStart(2, '0');
+                var dd = String(d.getDate()).padStart(2, '0');
+                return `${yyyy}/${mm}/${dd}`;
+            }
+        } catch (e) {}
+    }
+    return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
+}
+
 function renderAnnList() {
     const container = document.getElementById("annListContainer");
     container.innerHTML = "";
@@ -117,10 +134,11 @@ function renderAnnList() {
         const item = document.createElement("div");
         item.className = "ann-item";
         item.onclick = () => showAnnContent(index);
+        const displayDate = formatDateString(ann.date);
         item.innerHTML = `
-            <span class="ann-date">[${ann.date}]</span>
-            <span class="ann-title">${ann.title}</span>
-            <span style="color:#007bff; font-size:12px;">查看 ➔</span>
+            <span class="ann-date">[${displayDate}]</span>
+            <span class="ann-title" title="${ann.title}">${ann.title}</span>
+            <span class="ann-link-text">查看 ➔</span>
         `;
         container.appendChild(item);
     });
@@ -133,7 +151,7 @@ function showAnnContent(index) {
     document.getElementById("annListView").style.display = "none";
     
     document.getElementById("annContentTitle").innerText = ann.title;
-    document.getElementById("annContentDate").innerText = "發布日期：" + ann.date;
+    document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
     document.getElementById("annContentBody").innerText = ann.content;
     
     document.getElementById("btnPrevAnn").disabled = (index === 0);
