@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>行動打卡公告系統</title>
+    <title>華一商行行動打卡系統&公告</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; text-align: center; }
         .card { background: white; padding: 30px 30px 15px 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
@@ -17,7 +17,7 @@
         .btn-off { background-color: #dc3545; }
         .btn-off:hover { background-color: #c82333; }
         .time-hint { background-color: #eee; padding: 10px; border-radius: 5px; color: #666; font-size: 14px; margin-top: 10px; }
-        #status { margin-top: 10px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 10px; }
+        #status { margin-top: 10px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 20px; }
 
         /* 📢 公告欄專用樣式 */
         .announcement-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
@@ -25,11 +25,10 @@
         .ann-list-box { margin-bottom: 10px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
-        .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 30px; flex-shrink: 0;margin-right: 8px }
         
-        /* 🚀 標題樣式優化，允許內部文字變色 */
+        .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 68px; flex-shrink: 0; margin-right: 8px; }
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ann-title span { font-family: inherit !important; } /* 避免字型衝突 */
+        .ann-title span { font-family: inherit !important; } 
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
         .ann-content-view { display: none; text-align: left; }
@@ -52,8 +51,8 @@
 
 <div id="punchCard" class="card">
     <img src="YOUR_IMAGE_URL_HERE" alt="Company Logo" class="logo-img" onerror="this.style.display='none'">
-    <h2>行動打卡公告系統</h2>
-    <p style="font-size: 13px; color: #888; margin-top: 0;">華一商行專用</p>
+    <h2>華一商行 行動打卡系統&公告</h2>
+    <p style="font-size: 13px; color: #888; margin-top: 0;">華一商行專用系統</p>
     
     <label for="empName">👤 選擇您的姓名：</label>
     <select id="empName">
@@ -95,8 +94,39 @@
     </div>
 </div>
 
+<button type="button" id="btn補登" style="max-width: 400px; margin: 15px auto; display: block; background-color: #007bff; color: #ffeb3b; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%;">
+    📝 忘記打卡？點此申請補登
+</button>
+
+<div id="repairModal" style="display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 25px; border-radius: 10px; max-width: 350px; width: 90%; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        <h3 style="margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">⏰ 出勤補登申請</h3>
+        
+        <label style="display:block; margin-top:10px; font-weight:bold; color:#555;">補登日期：</label>
+        <input type="date" id="repairDate" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+        
+        <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">補登時間：</label>
+        <input type="time" id="repairTime" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+        
+        <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">選擇類別：</label>
+        <select id="repairType" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+            <option value="上班">🌅 上班補登</option>
+            <option value="下班">🌌 下班補登</option>
+        </select>
+        
+        <div style="margin-top: 15px; background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; font-size: 13px; line-height: 1.5; border: 1px solid #ffeeba; text-align: justify;">
+            ⚠️ <b>切結聲明：</b>本人聲明以上填寫之補登日期與時間皆屬實，確為實際到離職時間。若有虛報或偽造出勤紀錄之情事，本人願承擔公司管理辦法之處分與相關法律責任。
+        </div>
+        
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" onclick="closeRepairModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer; font-size:15px;">取消</button>
+            <button type="button" onclick="submitRepair()" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:15px;">同意並送出</button>
+        </div>
+    </div>
+</div>
+
 <script>
-// 🚀 請注意：若您的 GAS 網址有變更，請記得手動替換下方這行 URL 喔！
+// 💡 貼心提醒：此處已換上您的專屬後台連結！
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
 const COMPANY_LAT = 23.484433301249886; 
 const COMPANY_LNG = 120.4440414095138;  
@@ -150,8 +180,6 @@ function renderAllLists() {
     }
     ANNOUNCEMENTS.forEach((ann, index) => {
         const displayDate = formatDateString(ann.date);
-        
-        // 🚀 核心優化：列表標題改由後台傳送的富文本 HTML 渲染，支援試算表直接變色
         const titleHtml = ann.titleHtml || ann.title; 
         
         const mainItem = document.createElement("div");
@@ -168,7 +196,7 @@ function renderAllLists() {
         subItem.className = "ann-item";
         subItem.onclick = () => showAnnContent(index);
         subItem.innerHTML = `
-            <span class="ann-date">[${displayDate}]</span>
+            <span class="ann-date">${displayDate}</span>
             <span class="ann-title">${titleHtml}</span>
             <span class="ann-link-text">切換 ➔</span>
         `;
@@ -194,8 +222,8 @@ function showAnnContent(index) {
     const ann = ANNOUNCEMENTS[index];
     document.getElementById("punchCard").style.display = "none";
     document.getElementById("annListView").style.display = "none";
+    document.getElementById("btn補登").style.display = "none";
     
-    // 🚀 核心優化：點進去後的詳細內文大標題，也改用 HTML 渲染，支援試算表直接變色
     document.getElementById("annContentTitle").innerHTML = ann.titleHtml || ann.title;
     document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
     document.getElementById("annContentBody").innerHTML = ann.contentHtml; 
@@ -225,6 +253,7 @@ function showAnnList() {
     document.getElementById("annContentView").style.display = "none";
     document.getElementById("punchCard").style.display = "block";
     document.getElementById("annListView").style.display = "block";
+    document.getElementById("btn補登").style.display = "block";
     window.scrollTo(0, 0);
 }
 
@@ -317,6 +346,62 @@ function handleLocationError(error) {
         case error.TIMEOUT: statusDiv.innerHTML = "❌ 定位逾時，請重試。"; break;
         default: statusDiv.innerHTML = "❌ 發生未知定位錯誤。"; break;
     }
+}
+
+// 🚀 補登功能控制邏輯
+document.getElementById("btn補登").onclick = function() {
+    const name = document.getElementById("empName").value;
+    const password = document.getElementById("empPassword").value.trim();
+    if (!name) { alert("請先選擇您的姓名，再進行補登！"); return; }
+    if (password.length !== 4) { alert("請輸入 4 位數密碼以驗證身分！"); return; }
+    
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById("repairDate").value = today;
+    document.getElementById("repairModal").style.display = "flex";
+}
+
+function closeRepairModal() {
+    document.getElementById("repairModal").style.display = "none";
+}
+
+function submitRepair() {
+    const name = document.getElementById("empName").value;
+    const password = document.getElementById("empPassword").value.trim();
+    const rDate = document.getElementById("repairDate").value;
+    const rTime = document.getElementById("repairTime").value;
+    const rType = document.getElementById("repairType").value;
+    const statusDiv = document.getElementById("status");
+    
+    if (!rDate || !rTime) { alert("請完整填寫補登的日期與時間！"); return; }
+    
+    closeRepairModal();
+    statusDiv.innerHTML = "🔄 正在送出補登申請...";
+    statusDiv.style.color = "#666";
+    
+    const payload = {
+        name: name,
+        password: password,
+        type: rType,
+        isRepair: true,
+        repairTimestamp: rDate.replace(/-/g, "/") + " " + rTime + ":00"
+    };
+    
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(response => response.json())
+    .then(res => {
+        if (res.status === "success") {
+            statusDiv.innerHTML = `✅ 【${name}】${rType}補登成功！<br>補登時間：${rDate} ${rTime}`;
+            statusDiv.style.color = "blue"; 
+            document.getElementById("empPassword").value = ""; 
+        } else {
+            statusDiv.innerHTML = res.message; 
+            statusDiv.style.color = "red";
+        }
+    })
+    .catch((error) => {
+        statusDiv.innerHTML = "✅ 補登指令已送出，請至試算表確認紀錄。";
+        statusDiv.style.color = "green";
+    });
 }
 </script>
 </body>
