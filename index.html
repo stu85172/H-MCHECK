@@ -43,9 +43,117 @@
     <div id="buttonArea"></div>
     
     <div id="status"></div>
+<div class="announcement-panel">
+    <div id="annListView">
+        <h3>📢 公司最新公告</h3>
+        <div id="annListContainer"></div>
+    </div>
+
+    <div id="annContentView" class="ann-content-view">
+        <div id="annContentTitle" class="ann-content-title"></div>
+        <div id="annContentDate" class="ann-content-date"></div>
+        <div id="annContentBody" class="ann-content-body"></div>
+        
+        <div class="ann-nav-buttons">
+            <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
+            <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
+            <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
+        </div>
+    </div>
 </div>
 
 <script>
+// ==================== [ 📢 公告資料設定區 ] ====================
+// 💡 您可以在這裡自由新增、修改公告，最新發布的請放在最上面 (陣列開頭)
+const ANNOUNCEMENTS = [
+  {
+    date: "2026/06/23",
+    title: "測試測試測試測試測試",
+    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
+  },
+  {
+    date: "2026/06/15",
+    title: "測試測試測試測試測試",
+    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
+  },
+  {
+    date: "測試測試測試測試測試",
+    title: "六月份全員消防安全演練通知",
+    content: "各位同仁好：\n測試，測試。\n測試。謝謝大家的配合！"
+  }
+];
+
+let currentAnnIndex = 0; // 記錄目前觀看的公告索引
+
+// 初始化網頁
+window.onload = function() {
+    renderPunchButton();
+    renderAnnList(); // 渲染公告列表
+};
+
+// 渲染公告列表
+function renderAnnList() {
+    const container = document.getElementById("annListContainer");
+    container.innerHTML = "";
+    
+    if (ANNOUNCEMENTS.length === 0) {
+        container.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
+        return;
+    }
+
+    ANNOUNCEMENTS.forEach((ann, index) => {
+        const item = document.createElement("div");
+        item.className = "ann-item";
+        item.onclick = () => showAnnContent(index);
+        item.innerHTML = `
+            <span class="ann-date">[${ann.date}]</span>
+            <span class="ann-title">${ann.title}</span>
+            <span style="color:#007bff; font-size:12px;">查看 ➔</span>
+        `;
+        container.appendChild(item);
+    });
+}
+
+// 顯示特定公告內文
+function showAnnContent(index) {
+    currentAnnIndex = index;
+    const ann = ANNOUNCEMENTS[index];
+
+    // 隱藏打卡框與公告列表
+    document.getElementById("punchCard").style.display = "none";
+    document.getElementById("annListView").style.display = "none";
+    
+    // 填入公告內文
+    document.getElementById("annContentTitle").innerText = ann.title;
+    document.getElementById("annContentDate").innerText = "發布日期：" + ann.date;
+    document.getElementById("annContentBody").innerText = ann.content;
+    
+    // 控制上一則/下一則按鈕是否可點擊
+    document.getElementById("btnPrevAnn").disabled = (index === 0); // 第一則是最新，沒有上一則
+    document.getElementById("btnNextAnn").disabled = (index === ANNOUNCEMENTS.length - 1); // 最後一則沒有下一則
+    
+    // 顯示內文區塊
+    document.getElementById("annContentView").style.display = "block";
+    window.scrollTo(0, 0); // 畫面自動滾動回最上方
+}
+
+// 回到公告列表
+function showAnnList() {
+    // 隱藏內文區塊
+    document.getElementById("annContentView").style.display = "none";
+    
+    // 顯示打卡框與列表
+    document.getElementById("punchCard").style.display = "block";
+    document.getElementById("annListView").style.display = "block";
+}
+
+// 切換上一則或下一則
+function changeAnn(direction) {
+    const targetIndex = currentAnnIndex + direction;
+    if (targetIndex >= 0 && targetIndex < ANNOUNCEMENTS.length) {
+        showAnnContent(targetIndex);
+    }
+}
 // ==================== [ 系統參數設定 ] ====================
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
 const COMPANY_LAT = 23.484433301249886; // 公司緯度
