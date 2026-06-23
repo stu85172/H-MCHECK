@@ -6,7 +6,7 @@
     <title>華一商行行動打卡系統&公告</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background-color: #f4f7f6; text-align: center; }
-        .card { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        .card { background: white; padding: 30px 30px 15px 30px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
         .logo-img { max-width: 120px; height: auto; margin: 0 auto 15px auto; display: block; border-radius: 8px; }
         h2 { color: #333; margin-bottom: 5px; font-size: 22px; }
         label { display: block; text-align: left; margin-top: 15px; font-weight: bold; color: #555; }
@@ -17,10 +17,10 @@
         .btn-off { background-color: #dc3545; }
         .btn-off:hover { background-color: #c82333; }
         .time-hint { background-color: #eee; padding: 10px; border-radius: 5px; color: #666; font-size: 14px; margin-top: 10px; }
-        #status { margin-top: 20px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 20px; }
+        #status { margin-top: 10px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 20px; }
 
         /* 📢 公告欄專用樣式 */
-        .announcement-panel { max-width: 400px; margin: 25px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
+        .announcement-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
         .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 10px; }
         .ann-list-box { margin-bottom: 10px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
@@ -33,9 +33,9 @@
         .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
         .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
         
-        .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; white-space: pre-wrap; }
+        /* 🚀 這裡取消 white-space: pre-wrap 限制，改交給後台 HTML 的 <br> 處理，避免排版衝突 */
+        .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; }
         
-        /* 🚀 3張圖片展示區樣式，讓多張圖片整齊垂直排列 */
         .ann-content-img { max-width: 100%; height: auto; display: block; margin: 15px auto 0 auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         .ann-nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 25px; margin-top: 20px; }
@@ -80,6 +80,7 @@
     <div id="annContentView" class="ann-content-view">
         <div id="annContentTitle" class="ann-content-title"></div>
         <div id="annContentDate" class="ann-content-date"></div>
+        
         <div id="annContentBody" class="ann-content-body"></div>
         
         <div id="annContentImgContainer"></div>
@@ -171,6 +172,19 @@ function renderAllLists() {
     });
 }
 
+function convertDriveUrl(url) {
+    if (!url) return "";
+    url = url.trim();
+    if (url.includes("drive.google.com") && url.includes("/file/d/")) {
+        var id = url.split("/file/d/")[1].split("/")[0].split("?")[0];
+        return "https://drive.google.com/uc?export=view&id=" + id;
+    }
+    if (url.includes("dropbox.com")) {
+        return url.replace("dl=0", "dl=1");
+    }
+    return url;
+}
+
 function showAnnContent(index) {
     currentAnnIndex = index;
     const ann = ANNOUNCEMENTS[index];
@@ -179,17 +193,19 @@ function showAnnContent(index) {
     
     document.getElementById("annContentTitle").innerText = ann.title;
     document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
-    document.getElementById("annContentBody").innerText = ann.content; 
     
-    // 🚀 核心優化：迴圈檢查 3 張圖片，只要欄位有網址就依序生成印出來
+    // 🚀 核心優化：將原本的 innerText 改成 innerHTML，這樣後台傳過來的顏色、大小、粗細樣式才能被網頁順利解析！
+    document.getElementById("annContentBody").innerHTML = ann.contentHtml; 
+    
     const imgContainer = document.getElementById("annContentImgContainer");
-    imgContainer.innerHTML = ""; // 先清空
+    imgContainer.innerHTML = ""; 
     
     const targetImages = [ann.image1, ann.image2, ann.image3];
     targetImages.forEach((imgUrl) => {
-        if (imgUrl && imgUrl.trim() !== "" && (imgUrl.trim().startsWith("http://") || imgUrl.trim().startsWith("https://"))) {
+        var cleanUrl = convertDriveUrl(imgUrl);
+        if (cleanUrl && (cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://"))) {
             const imgTag = document.createElement("img");
-            imgTag.src = imgUrl.trim();
+            imgTag.src = cleanUrl;
             imgTag.className = "ann-content-img";
             imgTag.alt = "公告圖片";
             imgContainer.appendChild(imgTag);
@@ -216,7 +232,7 @@ function changeAnn(direction) {
     }
 }
 
-// ------ 打卡邏輯不變 ------
+//打卡功能維持不變...
 function renderPunchButton() {
     const buttonArea = document.getElementById("buttonArea");
     const now = new Date();
