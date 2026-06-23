@@ -21,22 +21,31 @@
 
         /* 📢 公告欄專用樣式 */
         .announcement-panel { max-width: 400px; margin: 25px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
-        .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; }
+        .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 10px; }
+        .ann-list-box { margin-bottom: 10px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
         .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 85px; flex-shrink: 0; }
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; margin-left: 8px; font-weight: 500; max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
+        
         .ann-content-view { display: none; text-align: left; }
         .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
         .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
-        .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; white-space: pre-wrap; margin-bottom: 25px; }
-        .ann-nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        
+        .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; white-space: pre-wrap; }
+        
+        /* 🚀 3張圖片展示區樣式，讓多張圖片整齊垂直排列 */
+        .ann-content-img { max-width: 100%; height: auto; display: block; margin: 15px auto 0 auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
+        .ann-nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 25px; margin-top: 20px; }
         .ann-btn { padding: 10px; border-radius: 5px; font-size: 13px; font-weight: bold; background-color: #6c757d; color: white; border: none; cursor: pointer; text-align: center; }
         .ann-btn:hover { background-color: #5a6268; }
         .ann-btn.back-list { background-color: #007bff; }
         .ann-btn.back-list:hover { background-color: #0069d9; }
         .ann-btn:disabled { background-color: #ced4da; color: #6c757d; cursor: not-allowed; }
+        
+        .sub-list-title { margin-top: 20px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 16px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -65,7 +74,7 @@
 <div class="announcement-panel">
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
-        <div id="annListContainer">🔄 正在從後台同步最新公告...</div>
+        <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
     </div>
 
     <div id="annContentView" class="ann-content-view">
@@ -73,11 +82,16 @@
         <div id="annContentDate" class="ann-content-date"></div>
         <div id="annContentBody" class="ann-content-body"></div>
         
+        <div id="annContentImgContainer"></div>
+        
         <div class="ann-nav-buttons">
             <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
             <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
             <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
         </div>
+
+        <div class="sub-list-title">📰 其他最新公告</div>
+        <div id="subAnnList" class="ann-list-box"></div>
     </div>
 </div>
 
@@ -100,10 +114,10 @@ function fetchAnnouncements() {
     .then(response => response.json())
     .then(data => {
         ANNOUNCEMENTS = data;
-        renderAnnList();
+        renderAllLists();
     })
     .catch(err => {
-        document.getElementById("annListContainer").innerHTML = "<p style='color:red; font-size:14px;'>❌ 無法載入公告，請重新整理網頁。</p>";
+        document.getElementById("mainAnnList").innerHTML = "<p style='color:red; font-size:14px;'>❌ 無法載入公告，請重新整理網頁。</p>";
     });
 }
 
@@ -123,24 +137,37 @@ function formatDateString(dateStr) {
     return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
 }
 
-function renderAnnList() {
-    const container = document.getElementById("annListContainer");
-    container.innerHTML = "";
+function renderAllLists() {
+    const mainContainer = document.getElementById("mainAnnList");
+    const subContainer = document.getElementById("subAnnList");
+    mainContainer.innerHTML = "";
+    subContainer.innerHTML = "";
     if (ANNOUNCEMENTS.length === 0) {
-        container.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
+        mainContainer.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
+        subContainer.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
         return;
     }
     ANNOUNCEMENTS.forEach((ann, index) => {
-        const item = document.createElement("div");
-        item.className = "ann-item";
-        item.onclick = () => showAnnContent(index);
         const displayDate = formatDateString(ann.date);
-        item.innerHTML = `
+        const mainItem = document.createElement("div");
+        mainItem.className = "ann-item";
+        mainItem.onclick = () => showAnnContent(index);
+        mainItem.innerHTML = `
             <span class="ann-date">[${displayDate}]</span>
             <span class="ann-title" title="${ann.title}">${ann.title}</span>
             <span class="ann-link-text">查看 ➔</span>
         `;
-        container.appendChild(item);
+        mainContainer.appendChild(mainItem);
+
+        const subItem = document.createElement("div");
+        subItem.className = "ann-item";
+        subItem.onclick = () => showAnnContent(index);
+        subItem.innerHTML = `
+            <span class="ann-date">[${displayDate}]</span>
+            <span class="ann-title" title="${ann.title}">${ann.title}</span>
+            <span class="ann-link-text">切換 ➔</span>
+        `;
+        subContainer.appendChild(subItem);
     });
 }
 
@@ -152,7 +179,22 @@ function showAnnContent(index) {
     
     document.getElementById("annContentTitle").innerText = ann.title;
     document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
-    document.getElementById("annContentBody").innerText = ann.content;
+    document.getElementById("annContentBody").innerText = ann.content; 
+    
+    // 🚀 核心優化：迴圈檢查 3 張圖片，只要欄位有網址就依序生成印出來
+    const imgContainer = document.getElementById("annContentImgContainer");
+    imgContainer.innerHTML = ""; // 先清空
+    
+    const targetImages = [ann.image1, ann.image2, ann.image3];
+    targetImages.forEach((imgUrl) => {
+        if (imgUrl && imgUrl.trim() !== "" && (imgUrl.trim().startsWith("http://") || imgUrl.trim().startsWith("https://"))) {
+            const imgTag = document.createElement("img");
+            imgTag.src = imgUrl.trim();
+            imgTag.className = "ann-content-img";
+            imgTag.alt = "公告圖片";
+            imgContainer.appendChild(imgTag);
+        }
+    });
     
     document.getElementById("btnPrevAnn").disabled = (index === 0);
     document.getElementById("btnNextAnn").disabled = (index === ANNOUNCEMENTS.length - 1);
@@ -164,6 +206,7 @@ function showAnnList() {
     document.getElementById("annContentView").style.display = "none";
     document.getElementById("punchCard").style.display = "block";
     document.getElementById("annListView").style.display = "block";
+    window.scrollTo(0, 0);
 }
 
 function changeAnn(direction) {
@@ -173,11 +216,11 @@ function changeAnn(direction) {
     }
 }
 
+// ------ 打卡邏輯不變 ------
 function renderPunchButton() {
     const buttonArea = document.getElementById("buttonArea");
     const now = new Date();
     const totalMinutes = now.getHours() * 60 + now.getMinutes();
-
     if (totalMinutes < 720) {
         buttonArea.innerHTML = `<button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>`;
     } else if (totalMinutes >= 810) {
