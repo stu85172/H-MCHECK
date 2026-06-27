@@ -23,7 +23,6 @@
         .announcement-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
         .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 12px; }
         
-        /* 🔍 搜尋框專用樣式 */
         .search-box { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
         
         .ann-list-box { margin-bottom: 10px; min-height: 50px; }
@@ -33,7 +32,6 @@
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
-        /* 🔢 分頁按鈕樣式 */
         .pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 15px; margin-bottom: 5px; flex-wrap: wrap; }
         .page-btn { padding: 5px 10px; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: bold; }
         .page-btn:hover { background: #f0f0f0; }
@@ -57,9 +55,18 @@
         /* 🌴 請假紀錄查詢專區樣式 */
         .query-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
         .query-panel h3 { margin-top: 0; color: #0288d1; border-bottom: 2px solid #0288d1; padding-bottom: 5px; font-size: 18px; margin-bottom: 15px; }
-        .leave-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
-        .leave-table th, .leave-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .leave-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; table-layout: fixed; }
+        .leave-table th, .leave-table td { border: 1px solid #ddd; padding: 8px; text-align: left; word-break: break-all; }
         .leave-table th { background-color: #f1f8ff; font-weight: bold; color: #333; }
+        
+        /* 🚀 智慧微調 A：縮窄日期欄位寬度（固定寬度 90px，其餘三欄由瀏覽器自適應均分） */
+        .col-date { width: 90px; }
+        
+        /* 🚀 智慧微調 B：未來日期的特殊顏色樣式（深橘紅色，凸顯尚未到來的日期） */
+        .future-date-highlight { color: #e65100; font-weight: bold; }
+        
+        /* 🚀 智慧微調 C：小紅字提示語樣式 */
+        .hint-red-text { color: #d32f2f; font-size: 12px; margin-top: 8px; font-weight: 500; display: block; }
     </style>
 </head>
 <body>
@@ -88,11 +95,8 @@
 <div class="announcement-panel" id="annPanel">
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
-        
         <input type="text" id="annSearchInput" class="search-box" placeholder="🔍 輸入關鍵字搜尋公告標題... (例如：人事)" oninput="handleSearch()">
-        
         <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
-        
         <div id="annPagination" class="pagination-container"></div>
     </div>
     <div id="annContentView" class="ann-content-view">
@@ -117,10 +121,18 @@
     <div id="queryResultArea" style="display: none; margin-top: 15px;">
         <div id="leaveTableArea" style="max-height: 250px; overflow-y: auto;">
             <table class="leave-table" id="leaveTable">
-                <thead><tr><th>日期</th><th>假別</th><th>天數/時數</th><th>原因</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th class="col-date">日期</th>
+                        <th>假別</th>
+                        <th>天數/時數</th>
+                        <th>原因</th>
+                    </tr>
+                </thead>
                 <tbody id="leaveTableBody"></tbody>
             </table>
         </div>
+        <span class="hint-red-text">*紅色日期為已准假的未來日期</span>
     </div>
 </div>
 
@@ -156,12 +168,12 @@ const COMPANY_LAT = 23.484433301249886;
 const COMPANY_LNG = 120.4440414095138;  
 const MAX_DISTANCE = 200;               
 
-let ANNOUNCEMENTS = [];      // 存放原始所有公告
-let FILTERED_ANNS = [];      // 存放搜尋篩選後的公告
-let currentPage = 1;         // 目前頁碼
-const ITEMS_PER_PAGE = 6;    // 每頁最多顯示 6 則
+let ANNOUNCEMENTS = [];      
+let FILTERED_ANNS = [];      
+let currentPage = 1;         
+const ITEMS_PER_PAGE = 6;    
 
-let currentAnnIndex = 0;     // 在 FILTERED_ANNS 中的索引位置
+let currentAnnIndex = 0;     
 
 window.onload = function() {
     renderPunchButton();
@@ -195,12 +207,30 @@ function queryMyLeaveRecords() {
             
             const tbody = document.getElementById("leaveTableBody");
             tbody.innerHTML = "";
+            
             if (res.leaveRecords.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">目前在 Leave_Records 中尚無您的請假紀錄。</td></tr>`;
             } else {
+                // 取得西元今天的精確「年月日」基準，排除時分秒干擾
+                const todayObj = new Date();
+                todayObj.setHours(0,0,0,0);
+                
                 res.leaveRecords.forEach(rec => {
                     const tr = document.createElement("tr");
-                    tr.innerHTML = `<td>${rec.date}</td><td>${rec.type}</td><td>${rec.duration}</td><td>${rec.reason}</td>`;
+                    
+                    // 🚀 智慧微調 B：將抓到的請假日期字串轉為時間物件進行交叉比對
+                    const recordDateObj = new Date(rec.date);
+                    recordDateObj.setHours(0,0,0,0);
+                    
+                    // 判斷是否為「未來日期」（大於今天）
+                    let isFuture = recordDateObj.getTime() > todayObj.getTime();
+                    
+                    // 如果是未來日期，就套用特殊紅字樣式 class
+                    const dateTdHtml = isFuture ? 
+                        `<td class="future-date-highlight">${rec.date}</td>` : 
+                        `<td>${rec.date}</td>`;
+                    
+                    tr.innerHTML = `${dateTdHtml}<td>${rec.type}</td><td>${rec.duration}</td><td>${rec.reason}</td>`;
                     tbody.appendChild(tr);
                 });
             }
@@ -219,7 +249,7 @@ function fetchAnnouncements() {
     .then(response => response.json())
     .then(data => {
         ANNOUNCEMENTS = data;
-        FILTERED_ANNS = [...ANNOUNCEMENTS]; // 初始時篩選列表等於全部
+        FILTERED_ANNS = [...ANNOUNCEMENTS]; 
         currentPage = 1;
         renderPage();
     })
@@ -228,7 +258,6 @@ function fetchAnnouncements() {
     });
 }
 
-// 🔍 處理關鍵字搜尋
 function handleSearch() {
     const keyword = document.getElementById("annSearchInput").value.trim().toLowerCase();
     if (!keyword) {
@@ -239,7 +268,7 @@ function handleSearch() {
             return title.includes(keyword);
         });
     }
-    currentPage = 1; // 搜尋後回到第一頁
+    currentPage = 1; 
     renderPage();
 }
 
@@ -259,7 +288,6 @@ function formatDateString(dateStr) {
     return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
 }
 
-// 🔢 渲染特定頁面的公告與分頁按鈕
 function renderPage() {
     const mainContainer = document.getElementById("mainAnnList");
     const paginationContainer = document.getElementById("annPagination");
@@ -271,18 +299,15 @@ function renderPage() {
         return;
     }
     
-    // 計算分頁範圍
     const totalItems = FILTERED_ANNS.length;
     const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
     
-    // 安全頁碼校正
     if (currentPage > totalPages) currentPage = totalPages;
     if (currentPage < 1) currentPage = 1;
     
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
     
-    // 渲染當頁的 6 則公告
     for (let i = startIndex; i < endIndex; i++) {
         const ann = FILTERED_ANNS[i];
         const displayDate = formatDateString(ann.date);
@@ -290,7 +315,7 @@ function renderPage() {
         
         const mainItem = document.createElement("div");
         mainItem.className = "ann-item";
-        mainItem.onclick = () => showAnnContent(i); // 傳入在篩選列表中的全域索引
+        mainItem.onclick = () => showAnnContent(i); 
         mainItem.innerHTML = `
             <span class="ann-date">${displayDate}</span>
             <span class="ann-title">${titleHtml}</span>
@@ -299,9 +324,7 @@ function renderPage() {
         mainContainer.appendChild(mainItem);
     }
     
-    // 建立分頁按鈕 (如果總頁數大於 1 頁才需要顯示頁碼)
     if (totalPages > 1) {
-        // 「上一頁」按鈕
         const prevBtn = document.createElement("button");
         prevBtn.className = "page-btn";
         prevBtn.innerText = "«";
@@ -309,7 +332,6 @@ function renderPage() {
         prevBtn.onclick = () => { currentPage--; renderPage(); };
         paginationContainer.appendChild(prevBtn);
         
-        // 數字頁碼
         for (let p = 1; p <= totalPages; p++) {
             const pageBtn = document.createElement("button");
             pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
@@ -318,7 +340,6 @@ function renderPage() {
             paginationContainer.appendChild(pageBtn);
         }
         
-        // 「下一頁」按鈕
         const nextBtn = document.createElement("button");
         nextBtn.className = "page-btn";
         nextBtn.innerText = "»";
@@ -326,19 +347,6 @@ function renderPage() {
         nextBtn.onclick = () => { currentPage++; renderPage(); };
         paginationContainer.appendChild(nextBtn);
     }
-}
-
-function convertDriveUrl(url) {
-    if (!url) return "";
-    url = url.trim();
-    if (url.includes("drive.google.com") && url.includes("/file/d/")) {
-        var id = url.split("/file/d/")[1].split("/")[0].split("?")[0];
-        return "https://drive.google.com/uc?export=view&id=" + id;
-    }
-    if (url.includes("dropbox.com")) {
-        return url.replace("dl=0", "dl=1");
-    }
-    return url;
 }
 
 function showAnnContent(filteredIndex) {
@@ -369,13 +377,12 @@ function showAnnContent(filteredIndex) {
         }
     });
     
-    // 側邊小列表：顯示當前查看公告以外的「其他搜尋篩選結果」
     const subContainer = document.getElementById("subAnnList");
     subContainer.innerHTML = "";
     let subCount = 0;
     
     FILTERED_ANNS.forEach((subAnn, idx) => {
-        if (idx !== filteredIndex && subCount < 4) { // 最多顯示 4 則其他相關公告
+        if (idx !== filteredIndex && subCount < 4) { 
             const displayDate = formatDateString(subAnn.date);
             const titleHtml = subAnn.titleHtml || subAnn.title;
             
@@ -561,10 +568,4 @@ function submitRepair() {
         }
     })
     .catch((error) => {
-        statusDiv.innerHTML = "✅ 補登指令已送出，請至試算表確認紀錄。";
-        statusDiv.style.color = "green";
-    });
-}
-</script>
-</body>
-</html>
+        statusDiv.innerHTML = "✅ 補登指令已送出
