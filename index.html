@@ -72,7 +72,7 @@
     <p style="font-size: 13px; color: #888; margin-top: 0;">內部專用系統</p>
     
     <label for="empName">👤 選擇您的姓名：</label>
-    <select id="empName">
+    <select id="empName" onchange="toggleButtons()">
         <option value="">-- 請選擇您的姓名 --</option>
         <option value="李英瑛">李英瑛</option>
         <option value="邱煒柔">邱煒柔</option>
@@ -81,9 +81,14 @@
     </select>
     
     <label for="empPassword">🔒 輸入 4 位數密碼：</label>
-    <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼">
+    <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼" oninput="toggleButtons()">
     
-    <div id="buttonArea"></div>
+    <div id="buttonArea" style="display: none; margin-top: 10px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>
+            <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班打卡</button>
+        </div>
+    </div>
     <div id="status"></div>
 </div>
 
@@ -91,4 +96,160 @@
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
         <input type="text" id="annSearchInput" class="search-box" placeholder="🔍 輸入關鍵字搜尋公告標題... (例如：人事)" oninput="handleSearch()">
-        <div
+        <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
+        <div id="annPagination" class="pagination-container"></div>
+    </div>
+    <div id="annContentView" class="ann-content-view">
+        <div id="annContentTitle" class="ann-content-title"></div>
+        <div id="annContentDate" class="ann-content-date"></div>
+        <div id="annContentBody" class="ann-content-body"></div>
+        <div id="annContentImgContainer"></div>
+        <div class="ann-nav-buttons">
+            <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
+            <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
+            <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
+        </div>
+        <div class="sub-list-title">📰 其他最新公告</div>
+        <div id="subAnnList" class="ann-list-box"></div>
+    </div>
+</div>
+
+<div class="query-panel" id="queryPanel">
+    <h3>🌴 個人歷史請假紀錄查詢</h3>
+    <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%;">🔍 點此同步查詢我的請假明細</button>
+    
+    <div id="queryResultArea" style="display: none; margin-top: 15px;">
+        <div id="leaveTableArea" style="max-height: 250px; overflow-y: auto;">
+            <table class="leave-table" id="leaveTable">
+                <thead>
+                    <tr>
+                        <th class="col-date">日期</th>
+                        <th>假別</th>
+                        <th>天數/時數</th>
+                        <th>原因</th>
+                    </tr>
+                </thead>
+                <tbody id="leaveTableBody"></tbody>
+            </table>
+        </div>
+        <span class="hint-red-text">*紅色日期為已准假的未來日期</span>
+    </div>
+</div>
+
+<button type="button" id="btn補登" style="max-width: 400px; margin: 15px auto; display: none; background-color: #007bff; color: #ffeb3b; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%;">
+    📝 忘記打卡？點此申請補登
+</button>
+
+<div id="repairModal" style="display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
+    <div style="background-color: white; padding: 25px; border-radius: 10px; max-width: 350px; width: 90%; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+        <h3 style="margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">⏰ 出勤補登申請</h3>
+        <label style="display:block; margin-top:10px; font-weight:bold; color:#555;">補登日期：</label>
+        <input type="date" id="repairDate" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+        <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">補登時間：</label>
+        <input type="time" id="repairTime" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+        <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">選擇類別：</label>
+        <select id="repairType" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
+            <option value="上班">🌅 上班補登</option>
+            <option value="下班">🌌 下班補登</option>
+        </select>
+        <div style="margin-top: 15px; background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; font-size: 13px; line-height: 1.5; border: 1px solid #ffeeba; text-align: justify;">
+            ⚠️ <b>切結聲明：</b>本人聲明以上填寫之補登日期與時間皆屬實，確為實際到離職時間。若有虛報或偽造出勤紀錄之情事，本人願承擔公司管理辦法之處分與相關法律責任。
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" onclick="closeRepairModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer; font-size:15px;">取消</button>
+            <button type="button" onclick="submitRepair()" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:15px;">同意並送出</button>
+        </div>
+    </div>
+</div>
+
+<script>
+const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
+const COMPANY_LAT = 23.484433301249886; 
+const COMPANY_LNG = 120.4440414095138;  
+const MAX_DISTANCE = 200;               
+
+let ANNOUNCEMENTS = [];      
+let FILTERED_ANNS = [];      
+let currentPage = 1;         
+const ITEMS_PER_PAGE = 6;    
+let currentAnnIndex = 0;     
+
+window.onload = function() {
+    fetchAnnouncements(); 
+    toggleButtons();
+};
+
+// 🚀 補回重要核心：控制按鈕何時該顯示的邏輯
+function toggleButtons() {
+    const name = document.getElementById("empName").value;
+    const password = document.getElementById("empPassword").value.trim();
+    const btnArea = document.getElementById("buttonArea");
+    const btnRepair = document.getElementById("btn補登");
+    
+    // 當名字已選，且密碼剛好輸入滿 4 位數時，才顯示打卡與補登按鈕
+    if (name && password.length === 4) {
+        btnArea.style.display = "block";
+        btnRepair.style.display = "block";
+    } else {
+        btnArea.style.display = "none";
+        btnRepair.style.display = "none";
+    }
+}
+
+function queryMyLeaveRecords() {
+    const name = document.getElementById("empName").value;
+    const password = document.getElementById("empPassword").value.trim();
+    
+    if (!name) { alert("請先選擇您的姓名！"); return; }
+    if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    
+    const statusDiv = document.getElementById("status");
+    statusDiv.innerHTML = "🔄 正在跨檔案索取您的歷史請假明細...";
+    statusDiv.style.color = "#0288d1";
+    
+    const url = `${GAS_URL}?action=queryOnlyLeave&name=${encodeURIComponent(name)}&password=${password}`;
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(res => {
+        if (res.status === "error") {
+            alert(res.message);
+            statusDiv.innerHTML = res.message;
+            statusDiv.style.color = "red";
+            document.getElementById("queryResultArea").style.display = "none";
+        } else {
+            statusDiv.innerHTML = "✅ 請假紀錄同步成功！";
+            statusDiv.style.color = "green";
+            
+            const tbody = document.getElementById("leaveTableBody");
+            tbody.innerHTML = "";
+            
+            if (res.leaveRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">指定區間內尚無您的請假紀錄。</td></tr>`;
+            } else {
+                const todayObj = new Date();
+                todayObj.setHours(0,0,0,0);
+                
+                res.leaveRecords.forEach(rec => {
+                    const tr = document.createElement("tr");
+                    const recordDateObj = new Date(rec.date);
+                    recordDateObj.setHours(0,0,0,0);
+                    
+                    let isFuture = recordDateObj.getTime() > todayObj.getTime();
+                    const dateTdHtml = isFuture ? 
+                        `<td class="future-date-highlight">${rec.date}</td>` : 
+                        `<td>${rec.date}</td>`;
+                    
+                    tr.innerHTML = `${dateTdHtml}<td>${rec.type}</td><td>${rec.duration}</td><td>${rec.reason}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+            document.getElementById("queryResultArea").style.display = "block";
+        }
+    })
+    .catch(err => {
+        alert("❌ 連線失敗，請確認網路或試算表分頁名稱是否正確。");
+        statusDiv.innerHTML = "❌ 查詢失敗。";
+        statusDiv.style.color = "red";
+    });
+}
