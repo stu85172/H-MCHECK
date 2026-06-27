@@ -32,11 +32,13 @@
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
-        .pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 15px; margin-bottom: 5px; flex-wrap: wrap; }
-        .page-btn { padding: 5px 10px; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: bold; }
-        .page-btn:hover { background: #f0f0f0; }
+        /* 🚀 智慧微調：精簡不佔空間、絕對不換行的分頁樣式 */
+        .pagination-container { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 20px; margin-bottom: 5px; flex-wrap: nowrap; }
+        .page-btn { width: auto; min-width: 32px; height: 32px; padding: 0 6px; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 0; }
+        .page-btn:hover { background: #f0f0f0; border-color: #bbb; }
         .page-btn.active { background: #007bff; color: white; border-color: #007bff; }
-        .page-btn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
+        .page-btn:disabled { background: #eee; color: #aaa; cursor: not-allowed; border-color: #ddd; }
+        .page-ellipsis { color: #888; font-size: 13px; padding: 0 4px; font-weight: bold; }
 
         .ann-content-view { display: none; text-align: left; }
         .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
@@ -59,13 +61,8 @@
         .leave-table th, .leave-table td { border: 1px solid #ddd; padding: 8px; text-align: left; word-break: break-all; }
         .leave-table th { background-color: #f1f8ff; font-weight: bold; color: #333; }
         
-        /* 🚀 智慧微調 A：縮窄日期欄位寬度（固定寬度 90px，其餘三欄由瀏覽器自適應均分） */
         .col-date { width: 90px; }
-        
-        /* 🚀 智慧微調 B：未來日期的特殊顏色樣式（深橘紅色，凸顯尚未到來的日期） */
         .future-date-highlight { color: #e65100; font-weight: bold; }
-        
-        /* 🚀 智慧微調 C：小紅字提示語樣式 */
         .hint-red-text { color: #d32f2f; font-size: 12px; margin-top: 8px; font-weight: 500; display: block; }
     </style>
 </head>
@@ -166,7 +163,7 @@
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
 const COMPANY_LAT = 23.484433301249886; 
 const COMPANY_LNG = 120.4440414095138;  
-const MAX_DISTANCE = 200;               
+const MAX_DISTANCE = 200;                
 
 let ANNOUNCEMENTS = [];      
 let FILTERED_ANNS = [];      
@@ -211,21 +208,16 @@ function queryMyLeaveRecords() {
             if (res.leaveRecords.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">目前在 Leave_Records 中尚無您的請假紀錄。</td></tr>`;
             } else {
-                // 取得西元今天的精確「年月日」基準，排除時分秒干擾
                 const todayObj = new Date();
                 todayObj.setHours(0,0,0,0);
                 
                 res.leaveRecords.forEach(rec => {
                     const tr = document.createElement("tr");
-                    
-                    // 🚀 智慧微調 B：將抓到的請假日期字串轉為時間物件進行交叉比對
                     const recordDateObj = new Date(rec.date);
                     recordDateObj.setHours(0,0,0,0);
                     
-                    // 判斷是否為「未來日期」（大於今天）
                     let isFuture = recordDateObj.getTime() > todayObj.getTime();
                     
-                    // 如果是未來日期，就套用特殊紅字樣式 class
                     const dateTdHtml = isFuture ? 
                         `<td class="future-date-highlight">${rec.date}</td>` : 
                         `<td>${rec.date}</td>`;
@@ -288,6 +280,7 @@ function formatDateString(dateStr) {
     return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
 }
 
+// 🚀 核心重寫：單行智慧省略分頁生成
 function renderPage() {
     const mainContainer = document.getElementById("mainAnnList");
     const paginationContainer = document.getElementById("annPagination");
@@ -324,7 +317,9 @@ function renderPage() {
         mainContainer.appendChild(mainItem);
     }
     
+    // ➔ 智慧單行分頁碼生成
     if (totalPages > 1) {
+        // 左側鍵 «
         const prevBtn = document.createElement("button");
         prevBtn.className = "page-btn";
         prevBtn.innerText = "«";
@@ -332,7 +327,31 @@ function renderPage() {
         prevBtn.onclick = () => { currentPage--; renderPage(); };
         paginationContainer.appendChild(prevBtn);
         
-        for (let p = 1; p <= totalPages; p++) {
+        // 計算動態顯示的核心區間
+        let startPage = Math.max(1, currentPage - 1);
+        let endPage = Math.min(totalPages, currentPage + 1);
+        
+        if (currentPage === 1) endPage = Math.min(totalPages, startPage + 2);
+        if (currentPage === totalPages) startPage = Math.max(1, endPage - 2);
+        
+        // 渲染首頁與省略號
+        if (startPage > 1) {
+            const firstBtn = document.createElement("button");
+            firstBtn.className = "page-btn";
+            firstBtn.innerText = "1";
+            firstBtn.onclick = () => { currentPage = 1; renderPage(); };
+            paginationContainer.appendChild(firstBtn);
+            
+            if (startPage > 2) {
+                const ellipsis = document.createElement("span");
+                ellipsis.className = "page-ellipsis";
+                ellipsis.innerText = "...";
+                paginationContainer.appendChild(ellipsis);
+            }
+        }
+        
+        // 中間連續核心頁碼
+        for (let p = startPage; p <= endPage; p++) {
             const pageBtn = document.createElement("button");
             pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
             pageBtn.innerText = p;
@@ -340,6 +359,23 @@ function renderPage() {
             paginationContainer.appendChild(pageBtn);
         }
         
+        // 渲染末頁與省略號
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) {
+                const ellipsis = document.createElement("span");
+                ellipsis.className = "page-ellipsis";
+                ellipsis.innerText = "...";
+                paginationContainer.appendChild(ellipsis);
+            }
+            
+            const lastBtn = document.createElement("button");
+            lastBtn.className = "page-btn";
+            lastBtn.innerText = totalPages;
+            lastBtn.onclick = () => { currentPage = totalPages; renderPage(); };
+            paginationContainer.appendChild(lastBtn);
+        }
+        
+        // 右側鍵 »
         const nextBtn = document.createElement("button");
         nextBtn.className = "page-btn";
         nextBtn.innerText = "»";
@@ -365,9 +401,11 @@ function showAnnContent(filteredIndex) {
     const imgContainer = document.getElementById("annContentImgContainer");
     imgContainer.innerHTML = ""; 
     
+    // 輔助函式：防呆未定義 convertDriveUrl
+    const checkDriveUrl = typeof convertDriveUrl === "function" ? convertDriveUrl : function(url){return url;};
     const targetImages = [ann.image1, ann.image2, ann.image3];
     targetImages.forEach((imgUrl) => {
-        var cleanUrl = convertDriveUrl(imgUrl);
+        var cleanUrl = checkDriveUrl(imgUrl);
         if (cleanUrl && (cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://"))) {
             const imgTag = document.createElement("img");
             imgTag.src = cleanUrl;
@@ -483,6 +521,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
 }
 
+// 跨域網路請求區
 function verifyAndSend(name, password, type, coords) {
     const statusDiv = document.getElementById("status");
     const distance = getDistance(coords.latitude, coords.longitude, COMPANY_LAT, COMPANY_LNG);
