@@ -25,10 +25,8 @@
         .ann-list-box { margin-bottom: 10px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
-        
-        .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 30px; flex-shrink: 0; margin-right: 8px; }
-        .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 270px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .ann-title span { font-family: inherit !important; } 
+        .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 68px; flex-shrink: 0; margin-right: 8px; }
+        .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
         .ann-content-view { display: none; text-align: left; }
@@ -43,8 +41,14 @@
         .ann-btn.back-list { background-color: #007bff; }
         .ann-btn.back-list:hover { background-color: #0069d9; }
         .ann-btn:disabled { background-color: #ced4da; color: #6c757d; cursor: not-allowed; }
-        
         .sub-list-title { margin-top: 20px; color: #555; border-bottom: 1px solid #eee; padding-bottom: 5px; font-size: 16px; font-weight: bold; }
+
+        /* 🌴 請假紀錄查詢專區樣式 */
+        .query-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
+        .query-panel h3 { margin-top: 0; color: #0288d1; border-bottom: 2px solid #0288d1; padding-bottom: 5px; font-size: 18px; margin-bottom: 15px; }
+        .leave-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+        .leave-table th, .leave-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        .leave-table th { background-color: #f1f8ff; font-weight: bold; color: #333; }
     </style>
 </head>
 <body>
@@ -70,54 +74,59 @@
     <div id="status"></div>
 </div>
 
-<div class="announcement-panel">
+<div class="query-panel" id="queryPanel">
+    <h3>🌴 個人歷史請假紀錄查詢</h3>
+    <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%;">🔍 點此同步查詢我的請假明細</button>
+    
+    <div id="queryResultArea" style="display: none; margin-top: 15px;">
+        <div id="leaveTableArea" style="max-height: 250px; overflow-y: auto;">
+            <table class="leave-table" id="leaveTable">
+                <thead><tr><th>日期</th><th>假別</th><th>天數/時數</th><th>原因</th></tr></thead>
+                <tbody id="leaveTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="announcement-panel" id="annPanel">
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
         <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
     </div>
-
     <div id="annContentView" class="ann-content-view">
         <div id="annContentTitle" class="ann-content-title"></div>
         <div id="annContentDate" class="ann-content-date"></div>
         <div id="annContentBody" class="ann-content-body"></div>
-        
         <div id="annContentImgContainer"></div>
-        
         <div class="ann-nav-buttons">
             <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
             <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
             <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
         </div>
-
         <div class="sub-list-title">📰 其他最新公告</div>
         <div id="subAnnList" class="ann-list-box"></div>
     </div>
 </div>
 
-<button type="button" id="btn補登" style="max-width: 400px; margin: 15px auto; display: block; background-color: #557ca6; color: #fcfc83; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%;">
+<button type="button" id="btn補登" style="max-width: 400px; margin: 15px auto; display: block; background-color: #007bff; color: #ffeb3b; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%;">
     📝 忘記打卡？點此申請補登
 </button>
 
 <div id="repairModal" style="display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
     <div style="background-color: white; padding: 25px; border-radius: 10px; max-width: 350px; width: 90%; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
         <h3 style="margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">⏰ 出勤補登申請</h3>
-        
         <label style="display:block; margin-top:10px; font-weight:bold; color:#555;">補登日期：</label>
         <input type="date" id="repairDate" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
-        
         <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">補登時間：</label>
         <input type="time" id="repairTime" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
-        
         <label style="display:block; margin-top:15px; font-weight:bold; color:#555;">選擇類別：</label>
         <select id="repairType" style="width:100%; padding:10px; margin-top:5px; box-sizing:border-box; border:1px solid #ccc; border-radius:5px; font-size:16px;">
             <option value="上班">🌅 上班補登</option>
             <option value="下班">🌌 下班補登</option>
         </select>
-        
         <div style="margin-top: 15px; background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; font-size: 13px; line-height: 1.5; border: 1px solid #ffeeba; text-align: justify;">
             ⚠️ <b>切結聲明：</b>本人聲明以上填寫之補登日期與時間皆屬實，確為實際到離職時間。若有虛報或偽造出勤紀錄之情事，本人願承擔公司管理辦法之處分與相關法律責任。
         </div>
-        
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button type="button" onclick="closeRepairModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer; font-size:15px;">取消</button>
             <button type="button" onclick="submitRepair()" style="flex:1; padding:12px; background:#28a745; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:bold; font-size:15px;">同意並送出</button>
@@ -126,11 +135,8 @@
 </div>
 
 <script>
-// 💡 貼心提醒：此處已換上您的專屬後台連結！
+// 💡 微調提示：此處維持與之前相同的 GAS 後台連結
 const GAS_URL = "https://script.google.com/macros/s/AKfycbzCdoO5z1ocJJVsjOMaZJpafHMvkhKwWcEhPqq8ltKnyljMB6Tc9wPIjfW27-FU1CeM/exec"; 
-const COMPANY_LAT = 23.484433301249886; 
-const COMPANY_LNG = 120.4440414095138;  
-const MAX_DISTANCE = 200;               
 
 let ANNOUNCEMENTS = []; 
 let currentAnnIndex = 0;
@@ -139,6 +145,53 @@ window.onload = function() {
     renderPunchButton();
     fetchAnnouncements(); 
 };
+
+// 🚀 新增功能：向後台請求請假歷史明細
+function queryMyLeaveRecords() {
+    const name = document.getElementById("empName").value;
+    const password = document.getElementById("empPassword").value.trim();
+    
+    if (!name) { alert("請先選擇您的姓名！"); return; }
+    if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    
+    const statusDiv = document.getElementById("status");
+    statusDiv.innerHTML = "🔄 正在跨檔案索取您的歷史請假明細...";
+    statusDiv.style.color = "#0288d1";
+    
+    const url = `${GAS_URL}?action=queryOnlyLeave&name=${encodeURIComponent(name)}&password=${password}`;
+    
+    fetch(url)
+    .then(response => response.json())
+    .then(res => {
+        if (res.status === "error") {
+            alert(res.message);
+            statusDiv.innerHTML = res.message;
+            statusDiv.style.color = "red";
+            document.getElementById("queryResultArea").style.display = "none";
+        } else {
+            statusDiv.innerHTML = "✅ 請假紀錄同步成功！";
+            statusDiv.style.color = "green";
+            
+            const tbody = document.getElementById("leaveTableBody");
+            tbody.innerHTML = "";
+            if (res.leaveRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">目前在 Leave_Records 中尚無您的請假紀錄。</td></tr>`;
+            } else {
+                res.leaveRecords.forEach(rec => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `<td>${rec.date}</td><td>${rec.type}</td><td>${rec.duration}</td><td>${rec.reason}</td>`;
+                    tbody.appendChild(tr);
+                });
+            }
+            document.getElementById("queryResultArea").style.display = "block";
+        }
+    })
+    .catch(err => {
+        alert("❌ 連線失敗，請確認網路或試算表分頁名稱是否正確。");
+        statusDiv.innerHTML = "❌ 查詢失敗。";
+        statusDiv.style.color = "red";
+    });
+}
 
 function fetchAnnouncements() {
     fetch(GAS_URL)
@@ -204,25 +257,13 @@ function renderAllLists() {
     });
 }
 
-function convertDriveUrl(url) {
-    if (!url) return "";
-    url = url.trim();
-    if (url.includes("drive.google.com") && url.includes("/file/d/")) {
-        var id = url.split("/file/d/")[1].split("/")[0].split("?")[0];
-        return "https://drive.google.com/uc?export=view&id=" + id;
-    }
-    if (url.includes("dropbox.com")) {
-        return url.replace("dl=0", "dl=1");
-    }
-    return url;
-}
-
 function showAnnContent(index) {
     currentAnnIndex = index;
     const ann = ANNOUNCEMENTS[index];
     document.getElementById("punchCard").style.display = "none";
     document.getElementById("annListView").style.display = "none";
     document.getElementById("btn補登").style.display = "none";
+    document.getElementById("queryPanel").style.display = "none";
     
     document.getElementById("annContentTitle").innerHTML = ann.titleHtml || ann.title;
     document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
@@ -254,6 +295,7 @@ function showAnnList() {
     document.getElementById("punchCard").style.display = "block";
     document.getElementById("annListView").style.display = "block";
     document.getElementById("btn補登").style.display = "block";
+    document.getElementById("queryPanel").style.display = "block";
     window.scrollTo(0, 0);
 }
 
@@ -266,20 +308,12 @@ function changeAnn(direction) {
 
 function renderPunchButton() {
     const buttonArea = document.getElementById("buttonArea");
-    const now = new Date();
-    const totalMinutes = now.getHours() * 60 + now.getMinutes();
-    if (totalMinutes < 720) {
-        buttonArea.innerHTML = `<button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>`;
-    } else if (totalMinutes >= 810) {
-        buttonArea.innerHTML = `
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班</button>
-                <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班</button>
-            </div>
-        `;
-    } else {
-        buttonArea.innerHTML = `<div class="time-hint">⏸️ 目前為中午休息時間 (12:00~13:30)，暫不開放上下班打卡。</div>`;
-    }
+    buttonArea.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>
+            <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班打卡</button>
+        </div>
+    `;
 }
 
 function getLocation(type) {
@@ -288,6 +322,26 @@ function getLocation(type) {
     const statusDiv = document.getElementById("status");
     if (!name) { alert("請先選擇您的姓名！"); return; }
     if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    
+    const now = new Date();
+    const totalMinutes = now.getHours() * 60 + now.getMinutes();
+    
+    if (type === "上班" && totalMinutes < (7 * 60 + 45)) {
+        alert("目前時間不開放打卡，請於 7:45 後再次嘗試。");
+        return;
+    }
+    
+    if (type === "下班" && totalMinutes < (17 * 60 + 30)) {
+        const hh = String(now.getHours()).padStart(2, '0');
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const confirmGo = confirm(`目前時間為 ${hh}:${mm}，打卡下班的話為早退，請問是否與主管請假成功呢？`);
+        if (!confirmGo) {
+            statusDiv.innerHTML = "❌ 已取消早退打卡。";
+            statusDiv.style.color = "orange";
+            return; 
+        }
+    }
+
     statusDiv.innerHTML = "🔄 正在驗證位置與身分...";
     statusDiv.style.color = "#666";
     if (navigator.geolocation) {
@@ -326,6 +380,7 @@ function verifyAndSend(name, password, type, coords) {
             statusDiv.innerHTML = `✅ 【${name}】${type}打卡成功！<br>距離公司：${Math.round(distance)} 公尺`;
             statusDiv.style.color = "green";
             document.getElementById("empPassword").value = ""; 
+            if (res.missAlert) { alert(res.missAlert); }
         } else {
             statusDiv.innerHTML = res.message; 
             statusDiv.style.color = "red";
@@ -348,7 +403,6 @@ function handleLocationError(error) {
     }
 }
 
-// 🚀 補登功能控制邏輯
 document.getElementById("btn補登").onclick = function() {
     const name = document.getElementById("empName").value;
     const password = document.getElementById("empPassword").value.trim();
@@ -373,16 +427,12 @@ function submitRepair() {
     const statusDiv = document.getElementById("status");
     
     if (!rDate || !rTime) { alert("請完整填寫補登的日期與時間！"); return; }
-    
     closeRepairModal();
     statusDiv.innerHTML = "🔄 正在送出補登申請...";
     statusDiv.style.color = "#666";
     
     const payload = {
-        name: name,
-        password: password,
-        type: rType,
-        isRepair: true,
+        name: name, password: password, type: rType, isRepair: true,
         repairTimestamp: rDate.replace(/-/g, "/") + " " + rTime + ":00"
     };
     
@@ -403,6 +453,8 @@ function submitRepair() {
         statusDiv.style.color = "green";
     });
 }
+function convertRichTextToHtml(richTextValue, isContent) { if (!richTextValue) return ""; var text = richTextValue.getText(); if (!text) return ""; var runs = richTextValue.getRuns(); if (!runs || runs.length === 0) return isContent ? text.replace(/\n/g, "<br>") : text; var html = ""; for (var i = 0; i < runs.length; i++) { var run = runs[i]; var runText = run.getText(); if (isContent) runText = runText.replace(/\n/g, "<br>"); var style = run.getTextStyle(); var cssStyles = []; if (style.getForegroundColorObject()) cssStyles.push("color: " + style.getForegroundColorObject().asRgbColor().asHexString()); if (style.getFontSize()) cssStyles.push("font-size: " + Math.round(style.getFontSize() * 1.3) + "px"); if (style.isBold()) cssStyles.push("font-weight: bold"); if (cssStyles.length > 0) { html += '<span style="' + cssStyles.join('; ') + '">' + runText + '</span>'; } else { html += runText; } } return html; }
+function parseCellImage(cellValue, cellFormula, objUrl) { if (cellValue && (cellValue.toString().startsWith("http://") || cellValue.toString().startsWith("https://"))) return cellValue.toString().trim(); if (cellFormula && cellFormula.toUpperCase().startsWith("=IMAGE")) { var match = cellFormula.match(/"(https?:\/\/[^"]+)"/i) || cellFormula.match(/'(https?:\/\/[^']+)'/i); if (match && match[1]) return match[1].trim(); } if (objUrl) return objUrl.trim(); return ""; }
 </script>
 </body>
 </html>
