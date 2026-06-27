@@ -21,14 +21,25 @@
 
         /* 📢 公告欄專用樣式 */
         .announcement-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
-        .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 10px; }
-        .ann-list-box { margin-bottom: 10px; }
+        .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 12px; }
+        
+        /* 🔍 搜尋框專用樣式 */
+        .search-box { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        
+        .ann-list-box { margin-bottom: 10px; min-height: 50px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
         .ann-date { font-size: 13px; color: #777; font-weight: bold; min-width: 68px; flex-shrink: 0; margin-right: 8px; }
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
+        /* 🔢 分頁按鈕樣式 */
+        .pagination-container { display: flex; justify-content: center; gap: 5px; margin-top: 15px; margin-bottom: 5px; flex-wrap: wrap; }
+        .page-btn { padding: 5px 10px; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 3px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .page-btn:hover { background: #f0f0f0; }
+        .page-btn.active { background: #007bff; color: white; border-color: #007bff; }
+        .page-btn:disabled { background: #eee; color: #aaa; cursor: not-allowed; }
+
         .ann-content-view { display: none; text-align: left; }
         .ann-content-title { font-size: 20px; color: #222; margin-bottom: 5px; font-weight: bold; }
         .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
@@ -74,11 +85,15 @@
     <div id="status"></div>
 </div>
 
-<!-- 📢 公司最新公告區 -->
 <div class="announcement-panel" id="annPanel">
     <div id="annListView">
         <h3>📢 公司最新公告</h3>
+        
+        <input type="text" id="annSearchInput" class="search-box" placeholder="🔍 輸入關鍵字搜尋公告標題... (例如：人事)" oninput="handleSearch()">
+        
         <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
+        
+        <div id="annPagination" class="pagination-container"></div>
     </div>
     <div id="annContentView" class="ann-content-view">
         <div id="annContentTitle" class="ann-content-title"></div>
@@ -95,7 +110,6 @@
     </div>
 </div>
 
-<!-- 🌴 個人歷史請假紀錄查詢（排序在公告欄後方） -->
 <div class="query-panel" id="queryPanel">
     <h3>🌴 個人歷史請假紀錄查詢</h3>
     <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%;">🔍 點此同步查詢我的請假明細</button>
@@ -142,8 +156,12 @@ const COMPANY_LAT = 23.484433301249886;
 const COMPANY_LNG = 120.4440414095138;  
 const MAX_DISTANCE = 200;               
 
-let ANNOUNCEMENTS = []; 
-let currentAnnIndex = 0;
+let ANNOUNCEMENTS = [];      // 存放原始所有公告
+let FILTERED_ANNS = [];      // 存放搜尋篩選後的公告
+let currentPage = 1;         // 目前頁碼
+const ITEMS_PER_PAGE = 6;    // 每頁最多顯示 6 則
+
+let currentAnnIndex = 0;     // 在 FILTERED_ANNS 中的索引位置
 
 window.onload = function() {
     renderPunchButton();
@@ -201,11 +219,28 @@ function fetchAnnouncements() {
     .then(response => response.json())
     .then(data => {
         ANNOUNCEMENTS = data;
-        renderAllLists();
+        FILTERED_ANNS = [...ANNOUNCEMENTS]; // 初始時篩選列表等於全部
+        currentPage = 1;
+        renderPage();
     })
     .catch(err => {
         document.getElementById("mainAnnList").innerHTML = "<p style='color:red; font-size:14px;'>❌ 無法載入公告，請重新整理網頁。</p>";
     });
+}
+
+// 🔍 處理關鍵字搜尋
+function handleSearch() {
+    const keyword = document.getElementById("annSearchInput").value.trim().toLowerCase();
+    if (!keyword) {
+        FILTERED_ANNS = [...ANNOUNCEMENTS];
+    } else {
+        FILTERED_ANNS = ANNOUNCEMENTS.filter(ann => {
+            const title = (ann.title || "").toLowerCase();
+            return title.includes(keyword);
+        });
+    }
+    currentPage = 1; // 搜尋後回到第一頁
+    renderPage();
 }
 
 function formatDateString(dateStr) {
@@ -224,40 +259,73 @@ function formatDateString(dateStr) {
     return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
 }
 
-function renderAllLists() {
+// 🔢 渲染特定頁面的公告與分頁按鈕
+function renderPage() {
     const mainContainer = document.getElementById("mainAnnList");
-    const subContainer = document.getElementById("subAnnList");
+    const paginationContainer = document.getElementById("annPagination");
     mainContainer.innerHTML = "";
-    subContainer.innerHTML = "";
-    if (ANNOUNCEMENTS.length === 0) {
-        mainContainer.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
-        subContainer.innerHTML = "<p style='color:#999; font-size:14px;'>目前暫無公告。</p>";
+    paginationContainer.innerHTML = "";
+    
+    if (FILTERED_ANNS.length === 0) {
+        mainContainer.innerHTML = "<p style='color:#999; font-size:14px; text-align:center; padding: 10px 0;'>沒有符合關鍵字的公告。</p>";
         return;
     }
-    ANNOUNCEMENTS.forEach((ann, index) => {
+    
+    // 計算分頁範圍
+    const totalItems = FILTERED_ANNS.length;
+    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    
+    // 安全頁碼校正
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+    
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+    
+    // 渲染當頁的 6 則公告
+    for (let i = startIndex; i < endIndex; i++) {
+        const ann = FILTERED_ANNS[i];
         const displayDate = formatDateString(ann.date);
-        const titleHtml = ann.titleHtml || ann.title; 
+        const titleHtml = ann.titleHtml || ann.title;
         
         const mainItem = document.createElement("div");
         mainItem.className = "ann-item";
-        mainItem.onclick = () => showAnnContent(index);
+        mainItem.onclick = () => showAnnContent(i); // 傳入在篩選列表中的全域索引
         mainItem.innerHTML = `
             <span class="ann-date">${displayDate}</span>
             <span class="ann-title">${titleHtml}</span>
             <span class="ann-link-text">查看 ➔</span>
         `;
         mainContainer.appendChild(mainItem);
-
-        const subItem = document.createElement("div");
-        subItem.className = "ann-item";
-        subItem.onclick = () => showAnnContent(index);
-        subItem.innerHTML = `
-            <span class="ann-date">${displayDate}</span>
-            <span class="ann-title">${titleHtml}</span>
-            <span class="ann-link-text">切換 ➔</span>
-        `;
-        subContainer.appendChild(subItem);
-    });
+    }
+    
+    // 建立分頁按鈕 (如果總頁數大於 1 頁才需要顯示頁碼)
+    if (totalPages > 1) {
+        // 「上一頁」按鈕
+        const prevBtn = document.createElement("button");
+        prevBtn.className = "page-btn";
+        prevBtn.innerText = "«";
+        prevBtn.disabled = (currentPage === 1);
+        prevBtn.onclick = () => { currentPage--; renderPage(); };
+        paginationContainer.appendChild(prevBtn);
+        
+        // 數字頁碼
+        for (let p = 1; p <= totalPages; p++) {
+            const pageBtn = document.createElement("button");
+            pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
+            pageBtn.innerText = p;
+            pageBtn.onclick = () => { currentPage = p; renderPage(); };
+            paginationContainer.appendChild(pageBtn);
+        }
+        
+        // 「下一頁」按鈕
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "page-btn";
+        nextBtn.innerText = "»";
+        nextBtn.disabled = (currentPage === totalPages);
+        nextBtn.onclick = () => { currentPage++; renderPage(); };
+        paginationContainer.appendChild(nextBtn);
+    }
 }
 
 function convertDriveUrl(url) {
@@ -273,10 +341,10 @@ function convertDriveUrl(url) {
     return url;
 }
 
-// 🚀 核心修復：修正變色解析與圖片迴圈對應（補回原 image2 變數漏填錯誤）
-function showAnnContent(index) {
-    currentAnnIndex = index;
-    const ann = ANNOUNCEMENTS[index];
+function showAnnContent(filteredIndex) {
+    currentAnnIndex = filteredIndex;
+    const ann = FILTERED_ANNS[filteredIndex];
+    
     document.getElementById("punchCard").style.display = "none";
     document.getElementById("annListView").style.display = "none";
     document.getElementById("btn補登").style.display = "none";
@@ -301,8 +369,35 @@ function showAnnContent(index) {
         }
     });
     
-    document.getElementById("btnPrevAnn").disabled = (index === 0);
-    document.getElementById("btnNextAnn").disabled = (index === ANNOUNCEMENTS.length - 1);
+    // 側邊小列表：顯示當前查看公告以外的「其他搜尋篩選結果」
+    const subContainer = document.getElementById("subAnnList");
+    subContainer.innerHTML = "";
+    let subCount = 0;
+    
+    FILTERED_ANNS.forEach((subAnn, idx) => {
+        if (idx !== filteredIndex && subCount < 4) { // 最多顯示 4 則其他相關公告
+            const displayDate = formatDateString(subAnn.date);
+            const titleHtml = subAnn.titleHtml || subAnn.title;
+            
+            const subItem = document.createElement("div");
+            subItem.className = "ann-item";
+            subItem.onclick = () => showAnnContent(idx);
+            subItem.innerHTML = `
+                <span class="ann-date">${displayDate}</span>
+                <span class="ann-title">${titleHtml}</span>
+                <span class="ann-link-text">切換 ➔</span>
+            `;
+            subContainer.appendChild(subItem);
+            subCount++;
+        }
+    });
+    
+    if (subCount === 0) {
+        subContainer.innerHTML = "<p style='color:#999; font-size:13px;'>無其他篩選公告。</p>";
+    }
+    
+    document.getElementById("btnPrevAnn").disabled = (filteredIndex === 0);
+    document.getElementById("btnNextAnn").disabled = (filteredIndex === FILTERED_ANNS.length - 1);
     document.getElementById("annContentView").style.display = "block";
     window.scrollTo(0, 0);
 }
@@ -318,7 +413,7 @@ function showAnnList() {
 
 function changeAnn(direction) {
     const targetIndex = currentAnnIndex + direction;
-    if (targetIndex >= 0 && targetIndex < ANNOUNCEMENTS.length) {
+    if (targetIndex >= 0 && targetIndex < FILTERED_ANNS.length) {
         showAnnContent(targetIndex);
     }
 }
