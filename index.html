@@ -16,15 +16,12 @@
         .btn-on:hover { background-color: #218838; }
         .btn-off { background-color: #dc3545; }
         .btn-off:hover { background-color: #c82333; }
-        .time-hint { background-color: #eee; padding: 10px; border-radius: 5px; color: #666; font-size: 14px; margin-top: 10px; }
         #status { margin-top: 10px; font-weight: bold; color: #666; line-height: 1.5; font-size: 15px; min-height: 20px; }
 
         /* 📢 公告欄專用樣式 */
         .announcement-panel { max-width: 400px; margin: 15px auto 0 auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: left; }
         .announcement-panel h3 { margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 5px; font-size: 18px; margin-bottom: 12px; }
-        
         .search-box { width: 100%; padding: 10px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
-        
         .ann-list-box { margin-bottom: 10px; min-height: 50px; }
         .ann-item { padding: 12px 0; border-bottom: 1px dashed #eee; cursor: pointer; display: flex; align-items: center; justify-content: space-between; }
         .ann-item:hover { background-color: #fafafa; }
@@ -32,7 +29,7 @@
         .ann-title { font-size: 14px; color: #333; flex-grow: 1; font-weight: 500; max-width: 245px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .ann-link-text { color: #007bff; font-size: 12px; flex-shrink: 0; margin-left: 5px; }
         
-        /* 🚀 精簡不佔空間、絕對不換行的分頁樣式 */
+        /* 🚀 分頁樣式 */
         .pagination-container { display: flex; justify-content: center; align-items: center; gap: 4px; margin-top: 20px; margin-bottom: 5px; flex-wrap: nowrap; }
         .page-btn { width: auto; min-width: 32px; height: 32px; padding: 0 6px; border: 1px solid #ddd; background: #fff; color: #333; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; transition: all 0.2s; margin-top: 0; }
         .page-btn:hover { background: #f0f0f0; border-color: #bbb; }
@@ -45,7 +42,6 @@
         .ann-content-date { font-size: 13px; color: #888; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 8px; }
         .ann-content-body { font-size: 15px; color: #444; line-height: 1.6; }
         .ann-content-img { max-width: 100%; height: auto; display: block; margin: 15px auto 0 auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        
         .ann-nav-buttons { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 25px; margin-top: 20px; }
         .ann-btn { padding: 10px; border-radius: 5px; font-size: 13px; font-weight: bold; background-color: #6c757d; color: white; border: none; cursor: pointer; text-align: center; }
         .ann-btn:hover { background-color: #5a6268; }
@@ -60,84 +56,127 @@
         .leave-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; table-layout: fixed; }
         .leave-table th, .leave-table td { border: 1px solid #ddd; padding: 8px; text-align: left; word-break: break-all; }
         .leave-table th { background-color: #f1f8ff; font-weight: bold; color: #333; }
-        
         .col-date { width: 90px; }
         .future-date-highlight { color: #e65100; font-weight: bold; }
         .hint-red-text { color: #d32f2f; font-size: 12px; margin-top: 8px; font-weight: 500; display: block; }
+
+        /* ❓ 智慧 FAQ 專屬分頁樣式 */
+        .faq-panel { display: none; max-width: 400px; margin: 20px auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); text-align: left; }
+        .faq-panel h2 { color: #1565c0; margin-top: 0; border-bottom: 3px solid #1565c0; padding-bottom: 8px; font-size: 22px; text-align: center; }
+        .faq-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #f8f9fa; padding: 8px; border-radius: 5px; font-size: 14px; }
+        .faq-controls select { width: auto; padding: 5px; margin: 0; font-size: 14px; }
+        
+        /* 折疊面板效果 */
+        .faq-accordion { border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
+        .faq-header { background: #f5f5f5; padding: 12px 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; font-size: 15px; color: #222; }
+        .faq-header:hover { background: #eee; }
+        .faq-header::after { content: '➕'; font-size: 12px; color: #777; transition: transform 0.2s; }
+        .faq-header.active { background: #e3f2fd; color: #0d47a1; }
+        .faq-header.active::after { content: '➖'; }
+        .faq-content { display: none; padding: 15px; background: #fff; font-size: 14.5px; color: #444; line-height: 1.6; border-top: 1px solid #e0e0e0; }
     </style>
 </head>
 <body>
 
-<div id="punchCard" class="card">
-    <img src="YOUR_IMAGE_URL_HERE" alt="Company Logo" class="logo-img" onerror="this.style.display='none'">
-    <h2>行動打卡系統&公告</h2>
-    <p style="font-size: 13px; color: #888; margin-top: 0;">內部專用系統</p>
-    
-    <label for="empName">👤 選擇您的姓名：</label>
-    <select id="empName">
-        <option value="">-- 請選擇您的姓名 --</option>
-        <option value="李英瑛">李英瑛</option>
-        <option value="邱煒柔">邱煒柔</option>
-        <option value="黃振緯">黃振緯</option>
-        <option value="蔡銘宸">蔡銘宸</option>
-    </select>
-    
-    <label for="empPassword">🔒 輸入 4 位數密碼：</label>
-    <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼">
-    
-    <div id="buttonArea"></div>
-    <div id="status"></div>
+<div id="mainPage">
+    <div id="punchCard" class="card">
+        <img src="YOUR_IMAGE_URL_HERE" alt="Company Logo" class="logo-img" onerror="this.style.display='none'">
+        <h2>行動打卡系統&公告</h2>
+        <p style="font-size: 13px; color: #888; margin-top: 0;">內部專用系統</p>
+        
+        <label for="empName">👤 選擇您的姓名：</label>
+        <select id="empName">
+            <option value="">-- 請選擇您的姓名 --</option>
+            <option value="李英瑛">李英瑛</option>
+            <option value="邱煒柔">邱煒柔</option>
+            <option value="黃振緯">黃振緯</option>
+            <option value="蔡銘宸">蔡銘宸</option>
+        </select>
+        
+        <label for="empPassword">🔒 輸入 4 位數密碼：</label>
+        <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼">
+        
+        <div id="buttonArea"></div>
+        <div id="status"></div>
+    </div>
+
+    <div class="announcement-panel" id="annPanel">
+        <div id="annListView">
+            <h3>📢 公司最新公告</h3>
+            <input type="text" id="annSearchInput" class="search-box" placeholder="🔍 輸入關鍵字搜尋公告標題... (例如：人事)" oninput="handleSearch()">
+            <div id="mainAnnList" class="ann-list-box">🔄 正在從後台同步最新公告...</div>
+            <div id="annPagination" class="pagination-container"></div>
+        </div>
+        <div id="annContentView" class="ann-content-view">
+            <div id="annContentTitle" class="ann-content-title"></div>
+            <div id="annContentDate" class="ann-content-date"></div>
+            <div id="annContentBody" class="ann-content-body"></div>
+            <div id="annContentImgContainer"></div>
+            <div class="ann-nav-buttons">
+                <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
+                <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
+                <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
+            </div>
+            <div class="sub-list-title">📰 其他最新公告</div>
+            <div id="subAnnList" class="ann-list-box"></div>
+        </div>
+    </div>
+
+    <div class="query-panel" id="queryPanel">
+        <h3>🛠️ 更多功能專區</h3>
+        
+        <button type="button" id="btn補登" onclick="openRepairClick()" style="background-color: #007bff; color: #ffeb3b; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 12px; margin-top: 0;">
+            📝 忘記打卡？點此申請補登
+        </button>
+
+        <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%; margin-bottom: 12px;">
+            🌴 點此同步查詢我的請假明細
+        </button>
+
+        <button type="button" onclick="switchToFAQPage()" style="background-color: #f57c00; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%; font-weight: bold;">
+            💡 公司常見問題 (FAQ)
+        </button>
+        
+        <div id="queryResultArea" style="display: none; margin-top: 15px;">
+            <div id="leaveTableArea" style="max-height: 250px; overflow-y: auto;">
+                <table class="leave-table" id="leaveTable">
+                    <thead>
+                        <tr>
+                            <th class="col-date">日期</th>
+                            <th>假別</th>
+                            <th>天數/時數</th>
+                            <th>原因</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaveTableBody"></tbody>
+                </table>
+            </div>
+            <span class="hint-red-text">*紅色日期為已准假的未來日期</span>
+        </div>
+    </div>
 </div>
 
-<div class="announcement-panel" id="annPanel">
-    <div id="annListView">
-        <h3>📢 公司最新公告</h3>
-        <input type="text" id="annSearchInput" class="search-box" placeholder="🔍 輸入關鍵字搜尋公告標題... (例如：活動)" oninput="handleSearch()">
-        <div id="mainAnnList" class="ann-list-box">🔄 請稍候...正在同步最新公告...</div>
-        <div id="annPagination" class="pagination-container"></div>
-    </div>
-    <div id="annContentView" class="ann-content-view">
-        <div id="annContentTitle" class="ann-content-title"></div>
-        <div id="annContentDate" class="ann-content-date"></div>
-        <div id="annContentBody" class="ann-content-body"></div>
-        <div id="annContentImgContainer"></div>
-        <div class="ann-nav-buttons">
-            <button class="ann-btn" id="btnPrevAnn" onclick="changeAnn(-1)">◀ 上一則</button>
-            <button class="ann-btn back-list" onclick="showAnnList()">📋 回列表</button>
-            <button class="ann-btn" id="btnNextAnn" onclick="changeAnn(1)">下一則 ▶</button>
-        </div>
-        <div class="sub-list-title">📰 其他最新公告</div>
-        <div id="subAnnList" class="ann-list-box"></div>
-    </div>
-</div>
-
-<div class="query-panel" id="queryPanel">
-    <h3>🛠️ 更多功能專區</h3>
+<div id="faqPage" class="faq-panel">
+    <h2>💡 公司常見問題 (FAQ)</h2>
     
-    <button type="button" id="btn補登" onclick="openRepairClick()" style="background-color: #0288d1; color: white; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 12px; margin-top: 0;">
-        📝 忘記打卡？ 👉點此申請補登
-    </button>
-
-    <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%;">
-        🌴 我的請假紀錄 👉點此查詢
-    </button>
+    <input type="text" id="faqSearchInput" class="search-box" placeholder="🔍 輸入關鍵字或標題搜尋常見問題..." oninput="handleFAQSearch()">
     
-    <div id="queryResultArea" style="display: none; margin-top: 15px;">
-        <div id="leaveTableArea" style="max-height: 250px; overflow-y: auto;">
-            <table class="leave-table" id="leaveTable">
-                <thead>
-                    <tr>
-                        <th class="col-date">日期</th>
-                        <th>假別</th>
-                        <th>天數/時數</th>
-                        <th>原因</th>
-                    </tr>
-                </thead>
-                <tbody id="leaveTableBody"></tbody>
-            </table>
-        </div>
-        <span class="hint-red-text">*紅色日期為已准假的未來日期</span>
+    <div class="faq-controls">
+        <span>顯示筆數：</span>
+        <select id="faqPageSize" onchange="changeFAQPageSize()">
+            <option value="10">10 筆</option>
+            <option value="25">25 筆</option>
+            <option value="50">50 筆</option>
+        </select>
     </div>
+    
+    <div id="faqListBox">🔄 正在同步常見問題庫...</div>
+    
+    <div id="faqPagination" class="pagination-container"></div>
+    
+    <button type="button" onclick="switchToMainPage()" style="background-color: #6c757d; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 25px; width: 100%; font-weight: bold;">
+        🔙 返回主網頁
+    </button>
 </div>
 
 <div id="repairModal" style="display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
@@ -153,7 +192,7 @@
             <option value="下班">🌌 下班補登</option>
         </select>
         <div style="margin-top: 15px; background: #fff3cd; color: #856404; padding: 12px; border-radius: 5px; font-size: 13px; line-height: 1.5; border: 1px solid #ffeeba; text-align: justify;">
-            ⚠️ <b>切結聲明：</b>本人聲明以上填寫之補登日期與時間皆屬實，確為實際上下班時間。若有虛報或偽造出勤紀錄之情事，本人願承擔公司管理辦法之處分與相關法律責任。每月最多補打卡2次，3次以上請聯繫主管說明緣由。
+            ⚠️ <b>切結聲明：</b>本人聲明以上填寫之補登日期與時間皆屬實，確為實際到離職時間。若有虛報或偽造出勤紀錄之情事，本人願承擔公司管理辦法之處分與相關法律責任。
         </div>
         <div style="display: flex; gap: 10px; margin-top: 20px;">
             <button type="button" onclick="closeRepairModal()" style="flex:1; padding:12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer; font-size:15px;">取消</button>
@@ -174,97 +213,69 @@ let currentPage = 1;
 const ITEMS_PER_PAGE = 6;    
 let currentAnnIndex = 0;     
 
-// 🛡️ 修正：統一初始化入口，確保打卡按鈕與公告撈取同步成功執行
+// ❓ FAQ 資料控制變數
+let RAW_FAQS = [];
+let FILTERED_FAQS = [];
+let faqCurrentPage = 1;
+let faqPageSize = 10;
+
 window.onload = function() {
     renderPunchButton();
     fetchAnnouncements(); 
+    fetchFAQData(); // 預先非同步載入 FAQ 暫存
 };
 
+// ==================== 🌴 讀取請假明細與公告核心機制 ====================
 function queryMyLeaveRecords() {
     const name = document.getElementById("empName").value;
     const password = document.getElementById("empPassword").value.trim();
-    
     if (!name) { alert("請先選擇您的姓名！"); return; }
     if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
-    
     const statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "🔄 正在跨檔案索取您的歷史請假明細...";
     statusDiv.style.color = "#0288d1";
-    
     const url = `${GAS_URL}?action=queryOnlyLeave&name=${encodeURIComponent(name)}&password=${password}`;
-    
-    fetch(url)
-    .then(response => response.json())
-    .then(res => {
+    fetch(url).then(response => response.json()).then(res => {
         if (res.status === "error") {
-            alert(res.message);
-            statusDiv.innerHTML = res.message;
-            statusDiv.style.color = "red";
+            alert(res.message); statusDiv.innerHTML = res.message; statusDiv.style.color = "red";
             document.getElementById("queryResultArea").style.display = "none";
         } else {
-            statusDiv.innerHTML = "✅ 請假紀錄同步成功！";
-            statusDiv.style.color = "green";
-            
-            const tbody = document.getElementById("leaveTableBody");
-            tbody.innerHTML = "";
-            
+            statusDiv.innerHTML = "✅ 請假紀錄同步成功！"; statusDiv.style.color = "green";
+            const tbody = document.getElementById("leaveTableBody"); tbody.innerHTML = "";
             if (res.leaveRecords.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">目前在 Leave_Records 中尚無您的請假紀錄。</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:#999;">目前尚無您的請假紀錄。</td></tr>`;
             } else {
-                const todayObj = new Date();
-                todayObj.setHours(0,0,0,0);
-                
+                const todayObj = new Date(); todayObj.setHours(0,0,0,0);
                 res.leaveRecords.forEach(rec => {
                     const tr = document.createElement("tr");
-                    const recordDateObj = new Date(rec.date);
-                    recordDateObj.setHours(0,0,0,0);
-                    
+                    const recordDateObj = new Date(rec.date); recordDateObj.setHours(0,0,0,0);
                     let isFuture = recordDateObj.getTime() > todayObj.getTime();
-                    
-                    const dateTdHtml = isFuture ? 
-                        `<td class="future-date-highlight">${rec.date}</td>` : 
-                        `<td>${rec.date}</td>`;
-                    
+                    const dateTdHtml = isFuture ? `<td class="future-date-highlight">${rec.date}</td>` : `<td>${rec.date}</td>`;
                     tr.innerHTML = `${dateTdHtml}<td>${rec.type}</td><td>${rec.duration}</td><td>${rec.reason}</td>`;
                     tbody.appendChild(tr);
                 });
             }
             document.getElementById("queryResultArea").style.display = "block";
         }
-    })
-    .catch(err => {
-        alert("❌ 連線失敗，請確認網路或試算表分頁名稱是否正確。");
-        statusDiv.innerHTML = "❌ 查詢失敗。";
-        statusDiv.style.color = "red";
+    }).catch(err => {
+        alert("❌ 連線失敗，請確認網路或後台設定。"); statusDiv.innerHTML = "❌ 查詢失敗。"; statusDiv.style.color = "red";
     });
 }
 
 function fetchAnnouncements() {
-    fetch(GAS_URL)
-    .then(response => response.json())
-    .then(data => {
-        ANNOUNCEMENTS = data;
-        FILTERED_ANNS = [...ANNOUNCEMENTS]; 
-        currentPage = 1;
-        renderPage();
-    })
-    .catch(err => {
+    fetch(GAS_URL).then(response => response.json()).then(data => {
+        ANNOUNCEMENTS = data; FILTERED_ANNS = [...ANNOUNCEMENTS]; currentPage = 1; renderPage();
+    }).catch(err => {
         document.getElementById("mainAnnList").innerHTML = "<p style='color:red; font-size:14px;'>❌ 無法載入公告，請重新整理網頁。</p>";
     });
 }
 
 function handleSearch() {
     const keyword = document.getElementById("annSearchInput").value.trim().toLowerCase();
-    if (!keyword) {
-        FILTERED_ANNS = [...ANNOUNCEMENTS];
-    } else {
-        FILTERED_ANNS = ANNOUNCEMENTS.filter(ann => {
-            const title = (ann.title || "").toLowerCase();
-            return title.includes(keyword);
-        });
+    if (!keyword) { FILTERED_ANNS = [...ANNOUNCEMENTS]; } else {
+        FILTERED_ANNS = ANNOUNCEMENTS.filter(ann => (ann.title || "").toLowerCase().includes(keyword));
     }
-    currentPage = 1; 
-    renderPage();
+    currentPage = 1; renderPage();
 }
 
 function formatDateString(dateStr) {
@@ -273,10 +284,7 @@ function formatDateString(dateStr) {
         try {
             var d = new Date(dateStr);
             if (!isNaN(d.getTime())) {
-                var yyyy = d.getFullYear();
-                var mm = String(d.getMonth() + 1).padStart(2, '0');
-                var dd = String(d.getDate()).padStart(2, '0');
-                return `${yyyy}/${mm}/${dd}`;
+                return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
             }
         } catch (e) {}
     }
@@ -284,180 +292,74 @@ function formatDateString(dateStr) {
 }
 
 function renderPage() {
-    const mainContainer = document.getElementById("mainAnnList");
-    const paginationContainer = document.getElementById("annPagination");
-    mainContainer.innerHTML = "";
-    paginationContainer.innerHTML = "";
-    
+    const mainContainer = document.getElementById("mainAnnList"); const paginationContainer = document.getElementById("annPagination");
+    mainContainer.innerHTML = ""; paginationContainer.innerHTML = "";
     if (FILTERED_ANNS.length === 0) {
-        mainContainer.innerHTML = "<p style='color:#999; font-size:14px; text-align:center; padding: 10px 0;'>沒有符合關鍵字的公告。</p>";
-        return;
+        mainContainer.innerHTML = "<p style='color:#999; font-size:14px; text-align:center; padding: 10px 0;'>沒有符合關鍵字的公告。</p>"; return;
     }
-    
-    const totalItems = FILTERED_ANNS.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-    
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-    
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
+    const totalItems = FILTERED_ANNS.length; const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+    if (currentPage > totalPages) currentPage = totalPages; if (currentPage < 1) currentPage = 1;
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE; const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems);
     
     for (let i = startIndex; i < endIndex; i++) {
-        const ann = FILTERED_ANNS[i];
-        const displayDate = formatDateString(ann.date);
-        const titleHtml = ann.titleHtml || ann.title;
-        
-        const mainItem = document.createElement("div");
-        mainItem.className = "ann-item";
-        mainItem.onclick = () => showAnnContent(i); 
-        mainItem.innerHTML = `
-            <span class="ann-date">${displayDate}</span>
-            <span class="ann-title">${titleHtml}</span>
-            <span class="ann-link-text">查看 ➔</span>
-        `;
+        const ann = FILTERED_ANNS[i]; const displayDate = formatDateString(ann.date); const titleHtml = ann.titleHtml || ann.title;
+        const mainItem = document.createElement("div"); mainItem.className = "ann-item"; mainItem.onclick = () => showAnnContent(i); 
+        mainItem.innerHTML = `<span class="ann-date">${displayDate}</span><span class="ann-title">${titleHtml}</span><span class="ann-link-text">查看 ➔</span>`;
         mainContainer.appendChild(mainItem);
     }
     
     if (totalPages > 1) {
-        const prevBtn = document.createElement("button");
-        prevBtn.className = "page-btn";
-        prevBtn.innerText = "«";
-        prevBtn.disabled = (currentPage === 1);
-        prevBtn.onclick = () => { currentPage--; renderPage(); };
-        paginationContainer.appendChild(prevBtn);
-        
-        let startPage = Math.max(1, currentPage - 1);
-        let endPage = Math.min(totalPages, currentPage + 1);
-        
-        if (currentPage === 1) endPage = Math.min(totalPages, startPage + 2);
-        if (currentPage === totalPages) startPage = Math.max(1, endPage - 2);
-        
+        const prevBtn = document.createElement("button"); prevBtn.className = "page-btn"; prevBtn.innerText = "«"; prevBtn.disabled = (currentPage === 1); prevBtn.onclick = () => { currentPage--; renderPage(); }; paginationContainer.appendChild(prevBtn);
+        let startPage = Math.max(1, currentPage - 1); let endPage = Math.min(totalPages, currentPage + 1);
+        if (currentPage === 1) endPage = Math.min(totalPages, startPage + 2); if (currentPage === totalPages) startPage = Math.max(1, endPage - 2);
         if (startPage > 1) {
-            const firstBtn = document.createElement("button");
-            firstBtn.className = "page-btn";
-            firstBtn.innerText = "1";
-            firstBtn.onclick = () => { currentPage = 1; renderPage(); };
-            paginationContainer.appendChild(firstBtn);
-            
-            if (startPage > 2) {
-                const ellipsis = document.createElement("span");
-                ellipsis.className = "page-ellipsis";
-                ellipsis.innerText = "...";
-                paginationContainer.appendChild(ellipsis);
-            }
+            const firstBtn = document.createElement("button"); firstBtn.className = "page-btn"; firstBtn.innerText = "1"; firstBtn.onclick = () => { currentPage = 1; renderPage(); }; paginationContainer.appendChild(firstBtn);
+            if (startPage > 2) { const ellipsis = document.createElement("span"); ellipsis.className = "page-ellipsis"; ellipsis.innerText = "..."; paginationContainer.appendChild(ellipsis); }
         }
-        
         for (let p = startPage; p <= endPage; p++) {
-            const pageBtn = document.createElement("button");
-            pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`;
-            pageBtn.innerText = p;
-            pageBtn.onclick = () => { currentPage = p; renderPage(); };
-            paginationContainer.appendChild(pageBtn);
+            const pageBtn = document.createElement("button"); pageBtn.className = `page-btn ${p === currentPage ? 'active' : ''}`; pageBtn.innerText = p; pageBtn.onclick = () => { currentPage = p; renderPage(); }; paginationContainer.appendChild(pageBtn);
         }
-        
         if (endPage < totalPages) {
-            if (endPage < totalPages - 1) {
-                const ellipsis = document.createElement("span");
-                ellipsis.className = "page-ellipsis";
-                ellipsis.innerText = "...";
-                paginationContainer.appendChild(ellipsis);
-            }
-            
-            const lastBtn = document.createElement("button");
-            lastBtn.className = "page-btn";
-            lastBtn.innerText = totalPages;
-            lastBtn.onclick = () => { currentPage = totalPages; renderPage(); };
-            paginationContainer.appendChild(lastBtn);
+            if (endPage < totalPages - 1) { const ellipsis = document.createElement("span"); ellipsis.className = "page-ellipsis"; ellipsis.innerText = "..."; paginationContainer.appendChild(ellipsis); }
+            const lastBtn = document.createElement("button"); lastBtn.className = "page-btn"; lastBtn.innerText = totalPages; lastBtn.onclick = () => { currentPage = totalPages; renderPage(); }; paginationContainer.appendChild(lastBtn);
         }
-        
-        const nextBtn = document.createElement("button");
-        nextBtn.className = "page-btn";
-        nextBtn.innerText = "»";
-        nextBtn.disabled = (currentPage === totalPages);
-        nextBtn.onclick = () => { currentPage++; renderPage(); };
-        paginationContainer.appendChild(nextBtn);
+        const nextBtn = document.createElement("button"); nextBtn.className = "page-btn"; nextBtn.innerText = "»"; nextBtn.disabled = (currentPage === totalPages); nextBtn.onclick = () => { currentPage++; renderPage(); }; paginationContainer.appendChild(nextBtn);
     }
 }
 
 function showAnnContent(filteredIndex) {
-    currentAnnIndex = filteredIndex;
-    const ann = FILTERED_ANNS[filteredIndex];
-    
-    document.getElementById("punchCard").style.display = "none";
-    document.getElementById("annListView").style.display = "none";
-    document.getElementById("queryPanel").style.display = "none"; 
-    
-    document.getElementById("annContentTitle").innerHTML = ann.titleHtml || ann.title;
-    document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date);
-    document.getElementById("annContentBody").innerHTML = ann.contentHtml; 
-    
-    const imgContainer = document.getElementById("annContentImgContainer");
-    imgContainer.innerHTML = ""; 
-    
-    const checkDriveUrl = typeof convertDriveUrl === "function" ? convertDriveUrl : function(url){return url;};
+    currentAnnIndex = filteredIndex; const ann = FILTERED_ANNS[filteredIndex];
+    document.getElementById("punchCard").style.display = "none"; document.getElementById("annListView").style.display = "none"; document.getElementById("queryPanel").style.display = "none"; 
+    document.getElementById("annContentTitle").innerHTML = ann.titleHtml || ann.title; document.getElementById("annContentDate").innerText = "發布日期：" + formatDateString(ann.date); document.getElementById("annContentBody").innerHTML = ann.contentHtml; 
+    const imgContainer = document.getElementById("annContentImgContainer"); imgContainer.innerHTML = ""; 
     const targetImages = [ann.image1, ann.image2, ann.image3];
     targetImages.forEach((imgUrl) => {
-        var cleanUrl = checkDriveUrl(imgUrl);
-        if (cleanUrl && (cleanUrl.startsWith("http://") || cleanUrl.startsWith("https://"))) {
-            const imgTag = document.createElement("img");
-            imgTag.src = cleanUrl;
-            imgTag.className = "ann-content-img";
-            imgTag.alt = "公告圖片";
-            imgContainer.appendChild(imgTag);
+        if (imgUrl && (imgUrl.startsWith("http://") || imgUrl.startsWith("https://"))) {
+            const imgTag = document.createElement("img"); imgTag.src = imgUrl; imgTag.className = "ann-content-img"; imgContainer.appendChild(imgTag);
         }
     });
-    
-    const subContainer = document.getElementById("subAnnList");
-    subContainer.innerHTML = "";
-    let subCount = 0;
-    
+    const subContainer = document.getElementById("subAnnList"); subContainer.innerHTML = ""; let subCount = 0;
     FILTERED_ANNS.forEach((subAnn, idx) => {
         if (idx !== filteredIndex && subCount < 4) { 
-            const displayDate = formatDateString(subAnn.date);
-            const titleHtml = subAnn.titleHtml || subAnn.title;
-            
-            const subItem = document.createElement("div");
-            subItem.className = "ann-item";
-            subItem.onclick = () => showAnnContent(idx);
-            subItem.innerHTML = `
-                <span class="ann-date">${displayDate}</span>
-                <span class="ann-title">${titleHtml}</span>
-                <span class="ann-link-text">切換 ➔</span>
-            `;
-            subContainer.appendChild(subItem);
-            subCount++;
+            const subItem = document.createElement("div"); subItem.className = "ann-item"; subItem.onclick = () => showAnnContent(idx);
+            subItem.innerHTML = `<span class="ann-date">${formatDateString(subAnn.date)}</span><span class="ann-title">${subAnn.titleHtml || subAnn.title}</span><span class="ann-link-text">切換 ➔</span>`;
+            subContainer.appendChild(subItem); subCount++;
         }
     });
-    
-    if (subCount === 0) {
-        subContainer.innerHTML = "<p style='color:#999; font-size:13px;'>無其他篩選公告。</p>";
-    }
-    
-    document.getElementById("btnPrevAnn").disabled = (filteredIndex === 0);
-    document.getElementById("btnNextAnn").disabled = (filteredIndex === FILTERED_ANNS.length - 1);
-    document.getElementById("annContentView").style.display = "block";
-    window.scrollTo(0, 0);
+    if (subCount === 0) { subContainer.innerHTML = "<p style='color:#999; font-size:13px;'>無其他篩選公告。</p>"; }
+    document.getElementById("btnPrevAnn").disabled = (filteredIndex === 0); document.getElementById("btnNextAnn").disabled = (filteredIndex === FILTERED_ANNS.length - 1);
+    document.getElementById("annContentView").style.display = "block"; window.scrollTo(0, 0);
 }
 
 function showAnnList() {
-    document.getElementById("annContentView").style.display = "none";
-    document.getElementById("punchCard").style.display = "block";
-    document.getElementById("annListView").style.display = "block";
-    document.getElementById("queryPanel").style.display = "block"; 
-    window.scrollTo(0, 0);
+    document.getElementById("annContentView").style.display = "none"; document.getElementById("punchCard").style.display = "block"; document.getElementById("annListView").style.display = "block"; document.getElementById("queryPanel").style.display = "block"; window.scrollTo(0, 0);
 }
 
-function changeAnn(direction) {
-    const targetIndex = currentAnnIndex + direction;
-    if (targetIndex >= 0 && targetIndex < FILTERED_ANNS.length) {
-        showAnnContent(targetIndex);
-    }
-}
+function changeAnn(direction) { const targetIndex = currentAnnIndex + direction; if (targetIndex >= 0 && targetIndex < FILTERED_ANNS.length) { showAnnContent(targetIndex); } }
 
+// ==================== 🛠️ 打卡定位機制與補登 ====================
 function renderPunchButton() {
-    const buttonArea = document.getElementById("buttonArea");
-    buttonArea.innerHTML = `
+    document.getElementById("buttonArea").innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <button type="button" class="btn-on" onclick="getLocation('上班')">🌅 上班打卡</button>
             <button type="button" class="btn-off" onclick="getLocation('下班')">🌌 下班打卡</button>
@@ -466,142 +368,169 @@ function renderPunchButton() {
 }
 
 function getLocation(type) {
-    const name = document.getElementById("empName").value;
-    const password = document.getElementById("empPassword").value.trim();
-    const statusDiv = document.getElementById("status");
-    if (!name) { alert("請先選擇您的姓名！"); return; }
-    if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
-    
-    const now = new Date();
-    const totalMinutes = now.getHours() * 60 + now.getMinutes();
-    
-    if (type === "上班" && totalMinutes < (7 * 60 + 45)) {
-        alert("目前時間不開放打卡，請於 7:45 後再次嘗試。");
-        return;
-    }
-    
+    const name = document.getElementById("empName").value; const password = document.getElementById("empPassword").value.trim(); const statusDiv = document.getElementById("status");
+    if (!name) { alert("請先選擇您的姓名！"); return; } if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    const now = new Date(); const totalMinutes = now.getHours() * 60 + now.getMinutes();
+    if (type === "上班" && totalMinutes < (7 * 60 + 45)) { alert("目前時間不開放打卡，請於 7:45 後再次嘗試。"); return; }
     if (type === "下班" && totalMinutes < (17 * 60 + 30)) {
-        const hh = String(now.getHours()).padStart(2, '0');
-        const mm = String(now.getMinutes()).padStart(2, '0');
-        const confirmGo = confirm(`目前時間為 ${hh}:${mm}，打卡下班的話為早退，請問是否與主管請假成功呢？`);
-        if (!confirmGo) {
-            statusDiv.innerHTML = "❌ 已取消早退打卡。";
-            statusDiv.style.color = "orange";
-            return; 
+        if (!confirm(`目前時間為 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}，打卡下班的話為早退，請問是否與主管請假成功呢？`)) {
+            statusDiv.innerHTML = "❌ 已取消早退打卡。"; statusDiv.style.color = "orange"; return; 
         }
     }
-
-    statusDiv.innerHTML = "🔄 正在驗證位置與身分...";
-    statusDiv.style.color = "#666";
+    statusDiv.innerHTML = "🔄 正在驗證位置與身分..."; statusDiv.style.color = "#666";
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => { verifyAndSend(name, password, type, position.coords); }, 
-            (error) => { handleLocationError(error); },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            (error) => { handleLocationError(error); }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
-    } else {
-        statusDiv.innerHTML = "❌ 您的瀏覽器不支援 GPS 定位功能。";
-        statusDiv.style.color = "red";
-    }
-}
-
-function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; 
-    const φ1 = lat1 * Math.PI / 180, φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180, Δλ = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    } else { statusDiv.innerHTML = "❌ 您的瀏覽器不支援 GPS 定位功能。"; statusDiv.style.color = "red"; }
 }
 
 function verifyAndSend(name, password, type, coords) {
     const statusDiv = document.getElementById("status");
-    const distance = getDistance(coords.latitude, coords.longitude, COMPANY_LAT, COMPANY_LNG);
+    const R = 6371e3; const φ1 = coords.latitude * Math.PI / 180, φ2 = COMPANY_LAT * Math.PI / 180;
+    const Δφ = (COMPANY_LAT - coords.latitude) * Math.PI / 180, Δλ = (COMPANY_LNG - coords.longitude) * Math.PI / 180;
+    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+    const distance = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
     if (distance > MAX_DISTANCE) {
-        statusDiv.innerHTML = `❌ 打卡失敗！<br>您目前距離公司約 <b>${Math.round(distance)}</b> 公尺。<br>已超出規定的 ${MAX_DISTANCE} 公尺範圍。`;
-        statusDiv.style.color = "red";
-        return;
+        statusDiv.innerHTML = `❌ 打卡失敗！<br>您目前距離公司約 <b>${Math.round(distance)}</b> 公尺。<br>已超出規定的 ${MAX_DISTANCE} 公尺範圍。`; statusDiv.style.color = "red"; return;
     }
     const payload = { name: name, password: password, type: type, latitude: coords.latitude, longitude: coords.longitude, accuracy: coords.accuracy };
-    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(response => response.json())
-    .then(res => {
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) }).then(response => response.json()).then(res => {
         if (res.status === "success") {
-            statusDiv.innerHTML = `✅ 【${name}】${type}打卡成功！<br>距離公司：${Math.round(distance)} 公尺`;
-            statusDiv.style.color = "green";
-            document.getElementById("empPassword").value = ""; 
+            statusDiv.innerHTML = `✅ 【${name}】${type}打卡成功！<br>距離公司：${Math.round(distance)} 公尺`; statusDiv.style.color = "green"; document.getElementById("empPassword").value = ""; 
             if (res.missAlert) { alert(res.missAlert); }
-        } else {
-            statusDiv.innerHTML = res.message; 
-            statusDiv.style.color = "red";
-        }
-    })
-    .catch((error) => {
-        statusDiv.innerHTML = "✅ 打卡指令已送出，請至試算表確認紀錄。";
-        statusDiv.style.color = "green";
-    });
+        } else { statusDiv.innerHTML = res.message; statusDiv.style.color = "red"; }
+    }).catch(() => { statusDiv.innerHTML = "✅ 打卡指令已送出，請至試算表確認紀錄。"; statusDiv.style.color = "green"; });
 }
 
 function handleLocationError(error) {
-    const statusDiv = document.getElementById("status");
-    statusDiv.style.color = "red";
-    switch(error.code) {
-        case error.PERMISSION_DENIED: statusDiv.innerHTML = "❌ 請開啟手機的「瀏覽器定位權限」再試一次。"; break;
-        case error.POSITION_UNAVAILABLE: statusDiv.innerHTML = "❌ 無法取得位置，請確認手機已開啟 GPS。"; break;
-        case error.TIMEOUT: statusDiv.innerHTML = "❌ 定位逾時，請重試。"; break;
-        default: statusDiv.innerHTML = "❌ 發生未知定位錯誤。"; break;
-    }
+    const statusDiv = document.getElementById("status"); statusDiv.style.color = "red";
+    if (error.code === error.PERMISSION_DENIED) statusDiv.innerHTML = "❌ 請開啟手機的「瀏覽器定位權限」再試一次。";
+    else if (error.code === error.POSITION_UNAVAILABLE) statusDiv.innerHTML = "❌ 無法取得位置，請確認手機已開啟 GPS。";
+    else if (error.code === error.TIMEOUT) statusDiv.innerHTML = "❌ 定位逾時，請重試。";
+    else statusDiv.innerHTML = "❌ 發生未知定位錯誤。";
 }
 
-// 🛡️ 修正點：改用極安全的直行 onclick 屬性與獨立宣告，完全移去可能阻塞代碼運行的 DOMContentLoaded 監聽器
 function openRepairClick() {
-    const name = document.getElementById("empName").value;
-    const password = document.getElementById("empPassword").value.trim();
-    if (!name) { alert("請先選擇您的姓名，再進行補登！"); return; }
-    if (password.length !== 4) { alert("請輸入 4 位數密碼以驗證身分！"); return; }
-    
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById("repairDate").value = today;
-    document.getElementById("repairModal").style.display = "flex";
+    const name = document.getElementById("empName").value; const password = document.getElementById("empPassword").value.trim();
+    if (!name || password.length !== 4) { alert("請先選擇姓名並輸入 4 位數密碼以驗證身分！"); return; }
+    document.getElementById("repairDate").value = new Date().toISOString().split('T')[0]; document.getElementById("repairModal").style.display = "flex";
 }
-
-function closeRepairModal() {
-    document.getElementById("repairModal").style.display = "none";
-}
-
+function closeRepairModal() { document.getElementById("repairModal").style.display = "none"; }
 function submitRepair() {
-    const name = document.getElementById("empName").value;
-    const password = document.getElementById("empPassword").value.trim();
-    const rDate = document.getElementById("repairDate").value;
-    const rTime = document.getElementById("repairTime").value;
-    const rType = document.getElementById("repairType").value;
-    const statusDiv = document.getElementById("status");
-    
-    if (!rDate || !rTime) { alert("請完整填寫補登的日期與時間！"); return; }
-    closeRepairModal();
-    statusDiv.innerHTML = "🔄 正在送出補登申請...";
-    statusDiv.style.color = "#666";
-    
-    const payload = {
-        name: name, password: password, type: rType, isRepair: true,
-        repairTimestamp: rDate.replace(/-/g, "/") + " " + rTime + ":00"
-    };
-    
-    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(response => response.json())
-    .then(res => {
-        if (res.status === "success") {
-            statusDiv.innerHTML = `✅ 【${name}】${rType}補登成功！<br>補登時間：${rDate} ${rTime}`;
-            statusDiv.style.color = "blue"; 
-            document.getElementById("empPassword").value = ""; 
-        } else {
-            statusDiv.innerHTML = res.message; 
-            statusDiv.style.color = "red";
-        }
-    })
-    .catch((error) => {
-        statusDiv.innerHTML = "✅ 補登指令已送出，請至試算表確認紀錄。";
-        statusDiv.style.color = "green";
+    const name = document.getElementById("empName").value; const password = document.getElementById("empPassword").value.trim();
+    const rDate = document.getElementById("repairDate").value; const rTime = document.getElementById("repairTime").value; const rType = document.getElementById("repairType").value;
+    if (!rDate || !rTime) { alert("請完整填寫補登的日期與時間！"); return; } closeRepairModal();
+    const statusDiv = document.getElementById("status"); statusDiv.innerHTML = "🔄 正在送出補登申請..."; statusDiv.style.color = "#666";
+    const payload = { name: name, password: password, type: rType, isRepair: true, repairTimestamp: rDate.replace(/-/g, "/") + " " + rTime + ":00" };
+    fetch(GAS_URL, { method: "POST", body: JSON.stringify(payload) }).then(response => response.json()).then(res => {
+        if (res.status === "success") { statusDiv.innerHTML = `✅ 【${name}】${rType}補登成功！<br>補登時間：${rDate} ${rTime}`; statusDiv.style.color = "blue"; document.getElementById("empPassword").value = ""; }
+        else { statusDiv.innerHTML = res.message; statusDiv.style.color = "red"; }
+    }).catch(() => { statusDiv.innerHTML = "✅ 補登指令已送出，請至試算表確認紀錄。"; statusDiv.style.color = "green"; });
+}
+
+// ==================== 🔥 新增：智慧 FAQ 控制核心機制 ====================
+function fetchFAQData() {
+    fetch(`${GAS_URL}?action=getFAQ`).then(res => res.json()).then(data => {
+        RAW_FAQS = data; FILTERED_FAQS = [...RAW_FAQS];
+        if(document.getElementById("faqPage").style.display === "block") { renderFAQPage(); }
+    }).catch(() => {
+        document.getElementById("faqListBox").innerHTML = "<p style='color:red;'>❌ 無法讀取FAQ庫，請稍後重試。</p>";
     });
+}
+
+function switchToFAQPage() {
+    document.getElementById("mainPage").style.display = "none";
+    document.getElementById("faqPage").style.display = "block";
+    faqCurrentPage = 1;
+    if (RAW_FAQS.length === 0) { fetchFAQData(); } else { renderFAQPage(); }
+    window.scrollTo(0, 0);
+}
+
+function switchToMainPage() {
+    document.getElementById("faqPage").style.display = "none";
+    document.getElementById("mainPage").style.display = "block";
+    window.scrollTo(0, 0);
+}
+
+function handleFAQSearch() {
+    const sWord = document.getElementById("faqSearchInput").value.trim().toLowerCase();
+    if (!sWord) { FILTERED_FAQS = [...RAW_FAQS]; } else {
+        FILTERED_FAQS = RAW_FAQS.filter(item => {
+            return item.q.toLowerCase().includes(sWord) || item.t.includes(sWord); // 💡 智慧搜尋：同時搜尋問題與隱藏標籤T
+        });
+    }
+    faqCurrentPage = 1;
+    renderFAQPage();
+}
+
+function changeFAQPageSize() {
+    faqPageSize = parseInt(document.getElementById("faqPageSize").value);
+    faqCurrentPage = 1;
+    renderFAQPage();
+}
+
+function toggleFAQAccordion(headerElement) {
+    const content = headerElement.nextElementSibling;
+    headerElement.classList.toggle("active");
+    if (content.style.display === "block") { content.style.display = "none"; } else { content.style.display = "block"; }
+}
+
+function renderFAQPage() {
+    const container = document.getElementById("faqListBox");
+    const pagination = document.getElementById("faqPagination");
+    container.innerHTML = ""; pagination.innerHTML = "";
+    
+    if (FILTERED_FAQS.length === 0) {
+        container.innerHTML = "<p style='color:#999; text-align:center; padding: 20px 0;'>🔍 找不到任何符合的常見問題紀錄。</p>";
+        return;
+    }
+    
+    const totalItems = FILTERED_FAQS.length;
+    const totalPages = Math.ceil(totalItems / faqPageSize);
+    if (faqCurrentPage > totalPages) faqCurrentPage = totalPages;
+    if (faqCurrentPage < 1) faqCurrentPage = 1;
+    
+    const start = (faqCurrentPage - 1) * faqPageSize;
+    const end = Math.min(start + faqPageSize, totalItems);
+    
+    // 渲染折疊面板列表
+    for (let i = start; i < end; i++) {
+        const item = FILTERED_FAQS[i];
+        const faqWrapper = document.createElement("div");
+        faqWrapper.className = "faq-accordion";
+        faqWrapper.innerHTML = `
+            <div class="faq-header" onclick="toggleFAQAccordion(this)"><b>Q: ${item.q}</b></div>
+            <div class="faq-content">A: ${item.a}</div>
+        `;
+        container.appendChild(faqWrapper);
+    }
+    
+    // 渲染分頁導覽按鈕 (與最新公告共用相同的高級防擠壓邏輯)
+    if (totalPages > 1) {
+        const prev = document.createElement("button"); prev.className = "page-btn"; prev.innerText = "«"; prev.disabled = (faqCurrentPage === 1);
+        prev.onclick = () => { faqCurrentPage--; renderFAQPage(); }; pagination.appendChild(prev);
+        
+        let startP = Math.max(1, faqCurrentPage - 1); let endP = Math.min(totalPages, faqCurrentPage + 1);
+        if (faqCurrentPage === 1) endP = Math.min(totalPages, startP + 2);
+        if (faqCurrentPage === totalPages) startP = Math.max(1, endP - 2);
+        
+        if (startP > 1) {
+            const fBtn = document.createElement("button"); fBtn.className = "page-btn"; fBtn.innerText = "1"; fBtn.onclick = () => { faqCurrentPage = 1; renderFAQPage(); }; pagination.appendChild(fBtn);
+            if (startP > 2) { const ell = document.createElement("span"); ell.className = "page-ellipsis"; ell.innerText = "..."; pagination.appendChild(ell); }
+        }
+        for (let p = startP; p <= endP; p++) {
+            const pBtn = document.createElement("button"); pBtn.className = `page-btn ${p === faqCurrentPage ? 'active' : ''}`; pBtn.innerText = p;
+            pBtn.onclick = () => { faqCurrentPage = p; renderFAQPage(); }; pagination.appendChild(pBtn);
+        }
+        if (endP < totalPages) {
+            if (endP < totalPages - 1) { const ell = document.createElement("span"); ell.className = "page-ellipsis"; ell.innerText = "..."; pagination.appendChild(ell); }
+            const lBtn = document.createElement("button"); lBtn.className = "page-btn"; lBtn.innerText = totalPages; lBtn.onclick = () => { faqCurrentPage = totalPages; renderFAQPage(); }; pagination.appendChild(lBtn);
+        }
+        const next = document.createElement("button"); next.className = "page-btn"; next.innerText = "»"; next.disabled = (faqCurrentPage === totalPages);
+        next.onclick = () => { faqCurrentPage++; renderFAQPage(); }; pagination.appendChild(next);
+    }
 }
 </script>
 </body>
