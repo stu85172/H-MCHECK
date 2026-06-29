@@ -66,7 +66,6 @@
         .faq-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; background: #f8f9fa; padding: 8px; border-radius: 5px; font-size: 14px; }
         .faq-controls select { width: auto; padding: 5px; margin: 0; font-size: 14px; }
         
-        /* 折疊面板效果 */
         .faq-accordion { border: 1px solid #e0e0e0; border-radius: 6px; overflow: hidden; margin-bottom: 10px; }
         .faq-header { background: #f5f5f5; padding: 12px 15px; font-weight: bold; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none; transition: background 0.2s; font-size: 15px; color: #222; }
         .faq-header:hover { background: #eee; }
@@ -78,21 +77,24 @@
 </head>
 <body>
 
+<!-- 主頁面：打卡與公告 -->
 <div id="mainPage">
     <div id="punchCard" class="card">
         <img src="YOUR_IMAGE_URL_HERE" alt="Company Logo" class="logo-img" onerror="this.style.display='none'">
         <h2>行動打卡系統&公告</h2>
         <p style="font-size: 13px; color: #888; margin-top: 0;">內部專用系統</p>
         
+        <!-- 👤 名單更新：蔡銘宸 改為 外務倉管 -->
         <label for="empName">👤 選擇您的姓名：</label>
         <select id="empName">
             <option value="">-- 請選擇您的姓名 --</option>
             <option value="李英瑛">李英瑛</option>
             <option value="邱煒柔">邱煒柔</option>
             <option value="黃振緯">黃振緯</option>
-            <option value="蔡銘宸">蔡銘宸</option>
+            <option value="外務倉管">外務倉管</option>
         </select>
         
+        <!-- 🔒 密碼框精準維持 4 碼限制 -->
         <label for="empPassword">🔒 輸入 4 位數密碼：</label>
         <input type="password" id="empPassword" pattern="\d*" inputmode="numeric" maxlength="4" placeholder="請輸入密碼">
         
@@ -122,18 +124,22 @@
         </div>
     </div>
 
+    <!-- 🛠️ 更多功能專區 (舒緩和諧的莫蘭迪色系按鈕) -->
     <div class="query-panel" id="queryPanel">
         <h3>🛠️ 更多功能專區</h3>
         
-        <button type="button" id="btn補登" onclick="openRepairClick()" style="background-color: #007bff; color: #ffeb3b; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 12px; margin-top: 0;">
+        <!-- 按鈕 1：補登申請 (柔和灰藍色) -->
+        <button type="button" id="btn補登" onclick="openRepairClick()" style="background-color: #5C89C3; color: white; font-weight: bold; padding: 12px; border-radius: 5px; border: none; cursor: pointer; font-size: 16px; width: 100%; margin-bottom: 12px; margin-top: 0;">
             📝 忘記打卡？點此申請補登
         </button>
 
-        <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #0288d1; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%; margin-bottom: 12px;">
+        <!-- 按鈕 2：請假明細查詢 (柔和薄荷綠) -->
+        <button type="button" onclick="queryMyLeaveRecords()" style="background-color: #68B08A; color: white; font-weight: bold; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%; margin-bottom: 12px;">
             🌴 點此同步查詢我的請假明細
         </button>
 
-        <button type="button" onclick="switchToFAQPage()" style="background-color: #f57c00; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%; font-weight: bold;">
+        <!-- 按鈕 3：常見問題 FAQ (溫暖柔和橘) -->
+        <button type="button" onclick="switchToFAQPage()" style="background-color: #E8A359; color: white; font-weight: bold; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 0; width: 100%;">
             💡 公司常見問題 (FAQ)
         </button>
         
@@ -156,11 +162,10 @@
     </div>
 </div>
 
+<!-- 獨立 FAQ 專屬分頁 -->
 <div id="faqPage" class="faq-panel">
     <h2>💡 公司常見問題 (FAQ)</h2>
-    
     <input type="text" id="faqSearchInput" class="search-box" placeholder="🔍 輸入關鍵字或標題搜尋常見問題..." oninput="handleFAQSearch()">
-    
     <div class="faq-controls">
         <span>顯示筆數：</span>
         <select id="faqPageSize" onchange="changeFAQPageSize()">
@@ -169,16 +174,14 @@
             <option value="50">50 筆</option>
         </select>
     </div>
-    
     <div id="faqListBox">🔄 正在同步常見問題庫...</div>
-    
     <div id="faqPagination" class="pagination-container"></div>
-    
     <button type="button" onclick="switchToMainPage()" style="background-color: #6c757d; color: white; padding: 12px; border-radius: 5px; font-size: 16px; margin-top: 25px; width: 100%; font-weight: bold;">
         🔙 返回主網頁
     </button>
 </div>
 
+<!-- 彈出視窗：補登 Modal -->
 <div id="repairModal" style="display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: center; justify-content: center;">
     <div style="background-color: white; padding: 25px; border-radius: 10px; max-width: 350px; width: 90%; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
         <h3 style="margin-top: 0; color: #007bff; border-bottom: 2px solid #007bff; padding-bottom: 8px;">⏰ 出勤補登申請</h3>
@@ -213,7 +216,6 @@ let currentPage = 1;
 const ITEMS_PER_PAGE = 6;    
 let currentAnnIndex = 0;     
 
-// ❓ FAQ 資料控制變數
 let RAW_FAQS = [];
 let FILTERED_FAQS = [];
 let faqCurrentPage = 1;
@@ -222,15 +224,15 @@ let faqPageSize = 10;
 window.onload = function() {
     renderPunchButton();
     fetchAnnouncements(); 
-    fetchFAQData(); // 預先非同步載入 FAQ 暫存
+    fetchFAQData(); 
 };
 
-// ==================== 🌴 讀取請假明細與公告核心機制 ====================
 function queryMyLeaveRecords() {
     const name = document.getElementById("empName").value;
     const password = document.getElementById("empPassword").value.trim();
     if (!name) { alert("請先選擇您的姓名！"); return; }
     if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    
     const statusDiv = document.getElementById("status");
     statusDiv.innerHTML = "🔄 正在跨檔案索取您的歷史請假明細...";
     statusDiv.style.color = "#0288d1";
@@ -283,9 +285,7 @@ function formatDateString(dateStr) {
     if (dateStr.includes("GMT") || dateStr.includes("T") || dateStr.includes("-") || dateStr.includes("/")) {
         try {
             var d = new Date(dateStr);
-            if (!isNaN(d.getTime())) {
-                return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
-            }
+            if (!isNaN(d.getTime())) { return `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`; }
         } catch (e) {}
     }
     return dateStr.length > 10 ? dateStr.substring(0, 10) : dateStr;
@@ -357,7 +357,7 @@ function showAnnList() {
 
 function changeAnn(direction) { const targetIndex = currentAnnIndex + direction; if (targetIndex >= 0 && targetIndex < FILTERED_ANNS.length) { showAnnContent(targetIndex); } }
 
-// ==================== 🛠️ 打卡定位機制與補登 ====================
+// ==================== 🛠️ 打卡定位與補登 ====================
 function renderPunchButton() {
     document.getElementById("buttonArea").innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
@@ -369,7 +369,9 @@ function renderPunchButton() {
 
 function getLocation(type) {
     const name = document.getElementById("empName").value; const password = document.getElementById("empPassword").value.trim(); const statusDiv = document.getElementById("status");
-    if (!name) { alert("請先選擇您的姓名！"); return; } if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    if (!name) { alert("請先選擇您的姓名！"); return; } 
+    if (password.length !== 4) { alert("請輸入正確的 4 位數密碼！"); return; }
+    
     const now = new Date(); const totalMinutes = now.getHours() * 60 + now.getMinutes();
     if (type === "上班" && totalMinutes < (7 * 60 + 45)) { alert("目前時間不開放打卡，請於 7:45 後再次嘗試。"); return; }
     if (type === "下班" && totalMinutes < (17 * 60 + 30)) {
@@ -430,7 +432,7 @@ function submitRepair() {
     }).catch(() => { statusDiv.innerHTML = "✅ 補登指令已送出，請至試算表確認紀錄。"; statusDiv.style.color = "green"; });
 }
 
-// ==================== 🔥 新增：智慧 FAQ 控制核心機制 ====================
+// ==================== 💡 智慧 FAQ 系統 ====================
 function fetchFAQData() {
     fetch(`${GAS_URL}?action=getFAQ`).then(res => res.json()).then(data => {
         RAW_FAQS = data; FILTERED_FAQS = [...RAW_FAQS];
@@ -458,7 +460,7 @@ function handleFAQSearch() {
     const sWord = document.getElementById("faqSearchInput").value.trim().toLowerCase();
     if (!sWord) { FILTERED_FAQS = [...RAW_FAQS]; } else {
         FILTERED_FAQS = RAW_FAQS.filter(item => {
-            return item.q.toLowerCase().includes(sWord) || item.t.includes(sWord); // 💡 智慧搜尋：同時搜尋問題與隱藏標籤T
+            return item.q.toLowerCase().includes(sWord) || item.t.includes(sWord); 
         });
     }
     faqCurrentPage = 1;
@@ -483,8 +485,7 @@ function renderFAQPage() {
     container.innerHTML = ""; pagination.innerHTML = "";
     
     if (FILTERED_FAQS.length === 0) {
-        container.innerHTML = "<p style='color:#999; text-align:center; padding: 20px 0;'>🔍 找不到任何符合的常見問題紀錄。</p>";
-        return;
+        container.innerHTML = "<p style='color:#999; text-align:center; padding: 20px 0;'>🔍 找不到任何符合的常見問題紀錄。</p>"; return;
     }
     
     const totalItems = FILTERED_FAQS.length;
@@ -495,19 +496,13 @@ function renderFAQPage() {
     const start = (faqCurrentPage - 1) * faqPageSize;
     const end = Math.min(start + faqPageSize, totalItems);
     
-    // 渲染折疊面板列表
     for (let i = start; i < end; i++) {
         const item = FILTERED_FAQS[i];
-        const faqWrapper = document.createElement("div");
-        faqWrapper.className = "faq-accordion";
-        faqWrapper.innerHTML = `
-            <div class="faq-header" onclick="toggleFAQAccordion(this)"><b>Q: ${item.q}</b></div>
-            <div class="faq-content">A: ${item.a}</div>
-        `;
+        const faqWrapper = document.createElement("div"); faqWrapper.className = "faq-accordion";
+        faqWrapper.innerHTML = `<div class="faq-header" onclick="toggleFAQAccordion(this)"><b>Q: ${item.q}</b></div><div class="faq-content">A: ${item.a}</div>`;
         container.appendChild(faqWrapper);
     }
     
-    // 渲染分頁導覽按鈕 (與最新公告共用相同的高級防擠壓邏輯)
     if (totalPages > 1) {
         const prev = document.createElement("button"); prev.className = "page-btn"; prev.innerText = "«"; prev.disabled = (faqCurrentPage === 1);
         prev.onclick = () => { faqCurrentPage--; renderFAQPage(); }; pagination.appendChild(prev);
